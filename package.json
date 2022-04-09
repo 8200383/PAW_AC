@@ -1,0 +1,33 @@
+{
+  "name": "paw",
+  "version": "0.1",
+  "description": "Trabalho prático em avaliação contínua",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js"
+  },
+  "keywords": [
+    "paw",
+    "nodejs",
+    "express"
+  ],
+  "author": "Micael Dias (8200383@estg.ipp.pt)",
+  "contributors": [
+    {
+      "name": "Pedro Tiago Magalhães Ribeiro",
+      "email": "8200387@estg.ipp.pt"
+    }
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1"
+  },
+  "devDependencies": {
+    "prettier": "2.6.2"
+  }
+}
