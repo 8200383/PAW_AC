@@ -2,31 +2,37 @@ const express = require('express')
 const path = require('path')
 const logger = require('morgan')
 
+// Aggregator
+const ConfigAggregator = require('../aggregators/ConfigAggregator')
+
 // Modules
-const customers = require('../../customers')
+const Customers = require('../../customers')
 
 // Middlewares
 const errorHandlerMiddleware = require('../middlewares/ErrorHandlerMiddleware')
 const notFoundMiddleware = require('../middlewares/NotFoundMiddleware')
+
+// Swagger
+const swaggerUI = require('swagger-ui-express')
+const swaggerJsDoc = require('swagger-jsdoc')
 
 class AppController {
 
     constructor() {
         this.express = express()
 
-        this.views()
         this.configs()
-        this.routes()
-        this.middlewares()
-    }
 
-    views() {
-        this.express.set('views', [
-            customers.views
+        this.aggregator = new ConfigAggregator([
+            Customers,
         ])
 
-        this.express.set('view engine', 'ejs')
-        this.express.use(express.static(path.join(__dirname, 'public')))
+        // Call after aggregator
+        this.views()
+        this.swagger()
+        this.routes()
+
+        this.errorHandling()
     }
 
     configs() {
@@ -35,12 +41,37 @@ class AppController {
         this.express.use(express.urlencoded({ extended: false }))
     }
 
-    routes() {
-        this.express.use(customers.routes)
+    views() {
+        this.express.set('views', this.aggregator.getMergedViews())
+        this.express.set('view engine', 'ejs')
+        this.express.use(express.static(path.join(__dirname, 'public')))
     }
 
-    middlewares() {
-        this.express.route('*').get(notFoundMiddleware)
+    swagger() {
+        const options = {
+            definition: {
+                openapi: '3.0.0',
+                info: {
+                    title: 'PAW Swagger Docs',
+                    version: 'v1beta1',
+                },
+            },
+            apis: this.aggregator.getMergedApiSpecifications(),
+        }
+
+        const openapiSpecification = swaggerJsDoc(options)
+        const swaggerUrl = '/'
+
+        this.express.use(swaggerUrl, swaggerUI.serve)
+        this.express.get(swaggerUrl, swaggerUI.setup(openapiSpecification))
+    }
+
+    routes() {
+        this.aggregator.getMergedRoutes().map((route) => this.express.use(route))
+    }
+
+    errorHandling() {
+        this.express.get('*', notFoundMiddleware)
         this.express.use(errorHandlerMiddleware)
     }
 }
