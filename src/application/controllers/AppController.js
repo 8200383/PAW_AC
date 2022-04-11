@@ -7,6 +7,7 @@ const ConfigAggregator = require('../aggregators/ConfigAggregator')
 
 // Modules
 const Customers = require('../../customers')
+const Purchases = require('../../purchases')
 
 // Middlewares
 const errorHandlerMiddleware = require('../middlewares/ErrorHandlerMiddleware')
@@ -24,6 +25,7 @@ class AppController {
 
         this.aggregator = new ConfigAggregator([
             Customers,
+            Purchases,
         ])
 
         // Call after aggregator
