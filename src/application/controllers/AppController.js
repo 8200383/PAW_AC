@@ -14,7 +14,6 @@ const notFoundMiddleware = require('../middlewares/NotFoundMiddleware')
 
 // Swagger
 const swaggerUI = require('swagger-ui-express')
-const swaggerJsDoc = require('swagger-jsdoc')
 
 class AppController {
 
@@ -49,21 +48,19 @@ class AppController {
 
     swagger() {
         const options = {
-            definition: {
-                openapi: '3.0.0',
-                info: {
-                    title: 'PAW Swagger Docs',
-                    version: 'v1beta1',
-                },
+            explorer: true,
+            swaggerOptions: {
+                urls: this.aggregator.getMergedApiSpecifications(),
             },
-            apis: this.aggregator.getMergedApiSpecifications(),
         }
 
-        const openapiSpecification = swaggerJsDoc(options)
-        const swaggerUrl = '/'
+        this.aggregator.getSwaggerFiles().map((swagger) => {
+            this.express.use(swagger.route, swagger.file)
+        })
 
+        const swaggerUrl = '/'
         this.express.use(swaggerUrl, swaggerUI.serve)
-        this.express.get(swaggerUrl, swaggerUI.setup(openapiSpecification))
+        this.express.get(swaggerUrl, swaggerUI.setup(null, options))
     }
 
     routes() {

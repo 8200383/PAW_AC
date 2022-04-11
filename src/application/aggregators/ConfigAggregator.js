@@ -1,8 +1,11 @@
+const express = require('express')
+
 class ConfigAggregator {
 
     constructor(modules) {
         this.views = []
         this.apiSpecifications = []
+        this.swaggerFiles = []
         this.routes = []
 
         modules.map((m) => {
@@ -13,8 +16,24 @@ class ConfigAggregator {
 
     retriveDependencies(module) {
         this.views.push(module.views)
-        this.apiSpecifications.push(module.swagger)
+
+        const swaggerPath = `/${module.name.toLowerCase()}.json`
+
+        this.apiSpecifications.push({
+            url: `http://localhost:3000${swaggerPath}`,
+            name: module.name,
+        })
+
+        this.swaggerFiles.push({
+            route: swaggerPath,
+            file: express.static(module.swagger),
+        })
+
         this.routes.push(module.routes)
+    }
+
+    getSwaggerFiles() {
+        return this.swaggerFiles
     }
 
     getMergedViews() {
