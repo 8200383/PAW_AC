@@ -15,12 +15,22 @@ const notFoundMiddleware = require('../middlewares/NotFoundMiddleware')
 // Swagger
 const swaggerUI = require('swagger-ui-express')
 
+// Mongoose
+const mongoose = require('mongoose')
+
+// Configs
+const configs = require('../config')
+
+// Helpers
+const mergeIntoConnectionString = require('../helpers/mergeIntoConnectionString')
+
 class AppController {
 
     constructor() {
         this.express = express()
 
         this.configs()
+        this.mongodb()
 
         this.aggregator = new ConfigAggregator([
             Customers,
@@ -38,6 +48,13 @@ class AppController {
         this.express.use(logger('dev'))
         this.express.use(express.json())
         this.express.use(express.urlencoded({ extended: false }))
+    }
+
+    mongodb() {
+        mongoose.connect(mergeIntoConnectionString(configs.mongo)).then(
+            () => console.info('Mongo connection is ready!'),
+            err => console.error(err)
+        )
     }
 
     views() {
@@ -58,7 +75,7 @@ class AppController {
             this.express.use(swagger.route, swagger.file)
         })
 
-        const swaggerUrl = '/'
+        const swaggerUrl = configs.swagger.url
         this.express.use(swaggerUrl, swaggerUI.serve)
         this.express.get(swaggerUrl, swaggerUI.setup(null, options))
     }
