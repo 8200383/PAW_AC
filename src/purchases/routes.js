@@ -1,13 +1,17 @@
 const router = require('express').Router()
 
-const Purchase = require('./controllers/Purchase')
+const PurchaseController = require('./controllers/PurchaseController')
+const validatePurchaseDto = require('./middlewares/validatePurchaseDto')
+const purchaseSchema = require('./schemas/purchaseSchema')
 
-router.route('/purchases')
-    .get(viewAllPurchases)
-    .post(createPurchase)
+router
+    .route('/purchases')
+    .post(validatePurchaseDto(purchaseSchema), PurchaseController.create)
+    .get(PurchaseController.getAll)
 
-router.route('/purchase/:id')
-    .get(viewPurchase)
-    .patch(updatePurchase)
+router
+    .route('/purchase/:id')
+    .get(PurchaseController.get)
+    .patch(PurchaseController.update)
 
 module.exports = router
