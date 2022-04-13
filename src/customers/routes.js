@@ -1,12 +1,17 @@
 const router = require('express').Router()
 
-router.route('/customers')
-    .post()
-    .get()
+const CustomerController = require('./controllers/CustomerController')
 
-router.route('/customer/:id')
-    .get()
-    .patch()
-    .delete()
+router.route('/customers')
+    .get(CustomerController.index)
+
+router.route('/api/customers')
+    .post(CustomerController.createCustomer)
+    .get(CustomerController.getAllCustomers)
+
+router.route('/api/customer/:id')
+    .get(CustomerController.getCustomer)
+    .patch(CustomerController.updateCustomer)
+    .delete(CustomerController.deleteCustomer)
 
 module.exports = router
