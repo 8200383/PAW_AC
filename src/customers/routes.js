@@ -1,6 +1,6 @@
 const router = require('express').Router()
 
-const CustomerController = require('./controllers/CustomerController')
+const { CustomerController } = require('./controllers')
 
 router.route('/customers')
     .get(CustomerController.index)
