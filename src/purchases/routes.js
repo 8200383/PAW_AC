@@ -1,16 +1,15 @@
 const router = require('express').Router()
 
 const PurchaseController = require('./controllers/PurchaseController')
-const validatePurchaseDto = require('./middlewares/validatePurchaseDto')
-const purchaseSchema = require('./schemas/purchaseSchema')
+const purchaseSchema = require('./validators/purchaseSchema')
 
-router
-    .route('/purchases')
-    .post(validatePurchaseDto(purchaseSchema), PurchaseController.create)
+const { schemaValidatorMiddleware } = require('../application/middlewares')
+
+router.route('/purchases')
+    .post(schemaValidatorMiddleware(purchaseSchema, 'body'), PurchaseController.create)
     .get(PurchaseController.getAll)
 
-router
-    .route('/purchase/:id')
+router.route('/purchase/:id')
     .get(PurchaseController.get)
     .patch(PurchaseController.update)
 

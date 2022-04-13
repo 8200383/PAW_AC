@@ -1,6 +1,4 @@
-const ajvInstance = require('./ajvInstance')
-
-const schema = {
+const purchaseSchema = {
     type: 'object',
     properties: {
         type: {
@@ -61,4 +59,4 @@ const schema = {
     additionalProperties: false,
 }
 
-module.exports = ajvInstance.compile(schema)
+module.exports = purchaseSchema
