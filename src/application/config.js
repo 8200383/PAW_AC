@@ -1,7 +1,4 @@
 const config = {
-    swagger: {
-        url: '/',
-    },
     mongo: {
         username: '8200383',
         password: '2YSdgStGsYF45YLI',

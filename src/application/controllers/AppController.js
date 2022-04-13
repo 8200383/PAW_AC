@@ -3,15 +3,14 @@ const path = require('path')
 const logger = require('morgan')
 
 // Aggregator
-const ConfigAggregator = require('../aggregators/ConfigAggregator')
+const { ConfigAggregator } = require('../aggregators')
 
 // Modules
 const Customers = require('../../customers')
 const Purchases = require('../../purchases')
 
 // Middlewares
-const errorHandlerMiddleware = require('../middlewares/ErrorHandlerMiddleware')
-const notFoundMiddleware = require('../middlewares/NotFoundMiddleware')
+const { errorHandlerMiddleware, notFoundMiddleware } = require('../middlewares')
 
 // Mongoose
 const mongoose = require('mongoose')
@@ -20,7 +19,7 @@ const mongoose = require('mongoose')
 const configs = require('../config')
 
 // Helpers
-const mergeIntoConnectionString = require('../helpers/mergeIntoConnectionString')
+const { mergeIntoConnectionString } = require('../helpers')
 
 class AppController {
 
@@ -51,7 +50,7 @@ class AppController {
     mongodb() {
         mongoose.connect(mergeIntoConnectionString(configs.mongo)).then(
             () => console.info('Mongo connection is ready!'),
-            err => console.error(err)
+            err => console.error(err),
         )
     }
 

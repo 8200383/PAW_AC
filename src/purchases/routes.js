@@ -1,7 +1,7 @@
 const router = require('express').Router()
 
-const PurchaseController = require('./controllers/PurchaseController')
-const purchaseSchema = require('./validators/purchaseSchema')
+const { PurchaseController } = require('./controllers')
+const { purchaseSchema } = require('./validators')
 
 const { schemaValidatorMiddleware } = require('../application/middlewares')
 
