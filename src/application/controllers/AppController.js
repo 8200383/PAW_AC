@@ -12,9 +12,6 @@ const Customers = require('../../customers')
 const errorHandlerMiddleware = require('../middlewares/ErrorHandlerMiddleware')
 const notFoundMiddleware = require('../middlewares/NotFoundMiddleware')
 
-// Swagger
-const swaggerUI = require('swagger-ui-express')
-
 // Mongoose
 const mongoose = require('mongoose')
 
@@ -38,7 +35,6 @@ class AppController {
 
         // Call after aggregator
         this.views()
-        this.swagger()
         this.routes()
 
         this.errorHandling()
@@ -61,23 +57,6 @@ class AppController {
         this.express.set('views', this.aggregator.getMergedViews())
         this.express.set('view engine', 'ejs')
         this.express.use(express.static(path.join(__dirname, 'public')))
-    }
-
-    swagger() {
-        const options = {
-            explorer: true,
-            swaggerOptions: {
-                urls: this.aggregator.getMergedApiSpecifications(),
-            },
-        }
-
-        this.aggregator.getSwaggerFiles().map((swagger) => {
-            this.express.use(swagger.route, swagger.file)
-        })
-
-        const swaggerUrl = configs.swagger.url
-        this.express.use(swaggerUrl, swaggerUI.serve)
-        this.express.get(swaggerUrl, swaggerUI.setup(null, options))
     }
 
     routes() {
