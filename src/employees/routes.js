@@ -1,19 +1,14 @@
 const router = require('express').Router()
 
-const CreateEmployee = require('./controllers/CreateEmployee.js')
-const ViewAllEmployees = require('./controllers/ViewAllEmployees.js')
-
-const ViewEmployee = require('./controllers/ViewEmployee.js')
-const DeleteEmployee = require('./controllers/DeleteEmployee.js')
-const UpdateEmployee = require('./controllers/UpdateEmployee.js')
+const Crontroller = require('./controllers/ControllerEmployee.js')
 
 router.route('/employees')
-    .get(ViewAllEmployees)
-    .post(CreateEmployee)
+    .get(Crontroller.ViewAllEmployees)
+    .post(Crontroller.CreateEmployee)
 
 router.route('/employee/:id')
-    .get(ViewEmployee)
-    .delete(DeleteEmployee)
-    .patch(UpdateEmployee)
+    .get(Crontroller.ViewEmployee)
+    .delete(Crontroller.DeleteEmployee)
+    .patch(Crontroller.UpdateEmployee)
 
 module.exports = router
