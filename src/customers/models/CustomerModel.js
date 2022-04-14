@@ -8,7 +8,7 @@ const customerSchema = new Schema({
     password: { type: String, required: true },
     cell_phone: Number,
     birth_date: Date,
-    gender: ['Male', 'Female', 'Non Binary'],
+    gender: { type: String, enum: ['Male', 'Female', 'Non Binary'] },
     country: String,
     postal_code: String,
     location: String,
