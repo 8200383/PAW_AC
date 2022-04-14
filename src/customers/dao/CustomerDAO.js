@@ -16,7 +16,7 @@ const addCustomer = async (body) => {
 
         const customer = new Customer(validatedSchema)
         await customer.validate()
-        return await customer.save()
+        await customer.save()
     } catch (err) {
         throw new Error(err)
     }
