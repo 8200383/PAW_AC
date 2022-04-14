@@ -1,5 +1,7 @@
 // Schemas
 const { createCustomerSchema } = require('../schemas')
+
+// Models
 const { CustomerModel } = require('../models')
 
 /**
@@ -40,10 +42,20 @@ const findCustomerByEmail = async (email) => {
     try {
         return await CustomerModel.findOne({ email: email })
     } catch (e) {
-        throw new Error(e)
+        throw new Error('Unexpected error occured: ' + e)
+    }
+}
+
+const findAllCustomers = async () => {
+    try {
+        return await CustomerModel.find({})
+    } catch (e) {
+        throw new Error('Unexpected error occured: ' + e)
     }
 }
 
 module.exports = {
     addCustomer,
+    findCustomerByEmail,
+    findAllCustomers,
 }

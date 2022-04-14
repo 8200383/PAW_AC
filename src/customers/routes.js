@@ -7,7 +7,7 @@ router.route('/customers')
 
 router.route('/api/customers')
     .post(CustomerController.createCustomer)
-    .get()
+    .get(CustomerController.getAllCustomers)
 
 router.route('/api/customer/:id')
     .get()
