@@ -13,7 +13,7 @@ const { CustomerDAO } = require('../dao')
 const createCustomer = async (req, res, next) => {
     try {
         await CustomerDAO.addCustomer(req.body)
-        res.status(200).json({ status: 'success' })
+        res.status(200).json({ message: 'Customer succefully added' })
     } catch (e) {
         next(createHttpError(400, e.message))
     }

@@ -1,24 +1,46 @@
-const { Request } = require('express')
-
 // Schemas
 const { createCustomerSchema } = require('../schemas')
-const { Customer } = require('../models')
+const { CustomerModel } = require('../models')
 
 /**
  * Add customer
  *
- * @param {Request.body} body
+ * @param {Object} schema
  * @returns {Promise<void>}
  */
-const addCustomer = async (body) => {
-    try {
-        const validatedSchema = await createCustomerSchema.validateAsync(body)
+const addCustomer = async (schema) => {
+    let validatedSchema = null
 
-        const customer = new Customer(validatedSchema)
+    try {
+        validatedSchema = await createCustomerSchema.validateAsync(schema)
+    } catch (e) {
+        throw new Error('Failed to validate schema ' + e)
+    }
+
+    const found = await findCustomerByEmail(validatedSchema.email)
+    if (found) {
+        throw new Error('Customer already exists')
+    }
+
+    try {
+        const customer = new CustomerModel(validatedSchema)
         await customer.validate()
         await customer.save()
-    } catch (err) {
-        throw new Error(err)
+    } catch (e) {
+        throw new Error('Failed to save into the databse ' + e)
+    }
+}
+
+/**
+ * Find customer by id
+ *
+ * @param {string} email
+ */
+const findCustomerByEmail = async (email) => {
+    try {
+        return await CustomerModel.findOne({ email: email })
+    } catch (e) {
+        throw new Error(e)
     }
 }
 
