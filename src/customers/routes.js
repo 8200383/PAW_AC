@@ -3,15 +3,15 @@ const router = require('express').Router()
 const { CustomerController } = require('./controllers')
 
 router.route('/customers')
-    .get(CustomerController.index)
+    .get()
 
 router.route('/api/customers')
     .post(CustomerController.createCustomer)
-    .get(CustomerController.getAllCustomers)
+    .get()
 
 router.route('/api/customer/:id')
-    .get(CustomerController.getCustomer)
-    .patch(CustomerController.updateCustomer)
-    .delete(CustomerController.deleteCustomer)
+    .get()
+    .patch()
+    .delete()
 
 module.exports = router

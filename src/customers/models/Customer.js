@@ -3,7 +3,9 @@ const Schema = mongoose.Schema
 
 const customerSchema = new Schema({
     reader_card_num: Number,
-    name: String,
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
     cell_phone: Number,
     birth_date: Date,
     gender: ['Male', 'Female', 'Non Binary'],
@@ -12,7 +14,7 @@ const customerSchema = new Schema({
     location: String,
     billing_address: String,
     residence_address: String,
-    nif: Number,
+    nif: { type: Number, min: 0, max: 10 },
     profession: String,
     accumulated_balance: Number,
     created_at: { type: Date, default: Date.now },
