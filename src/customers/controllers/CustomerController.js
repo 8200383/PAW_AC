@@ -1,8 +1,8 @@
 const { Request, Response, NextFunction } = require('express')
-const createHttpError = require('http-errors')
 
 // DAO
 const { CustomerDAO } = require('../dao')
+const { APIError } = require('../../application/helpers')
 
 /**
  * Create a Customer
@@ -16,7 +16,7 @@ const createCustomer = async (req, res, next) => {
         await CustomerDAO.addCustomer(req.body)
         res.status(200).json({ message: 'Customer successfully added' })
     } catch (e) {
-        next(createHttpError(400, e.message))
+        next(new APIError(e, e.statusCode))
     }
 }
 
@@ -32,7 +32,7 @@ const getAllCustomers = async (req, res, next) => {
         const customers = await CustomerDAO.findAllCustomers()
         res.status(200).json({ customers: customers })
     } catch (e) {
-        next(createHttpError(400, e.message))
+        next(new APIError(e, e.statusCode))
     }
 }
 

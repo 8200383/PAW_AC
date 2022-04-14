@@ -1,4 +1,4 @@
-const createHttpError = require('http-errors')
+const { APIError } = require('../helpers')
 
 /**
  * Not Found 404 Middleware
@@ -8,7 +8,7 @@ const createHttpError = require('http-errors')
  * @param {Function} next - Express `next()` function
  */
 function notFoundMiddleware(req, res, next) {
-    next(createHttpError(404))
+    next(APIError.CustomMessage('Page or Route not found', 404))
 }
 
 module.exports = notFoundMiddleware

@@ -3,6 +3,7 @@ const { createCustomerSchema } = require('../schemas')
 
 // Models
 const { CustomerModel } = require('../models')
+const { APIError } = require('../../application/helpers')
 
 /**
  * Add customer
@@ -16,12 +17,12 @@ const addCustomer = async (schema) => {
     try {
         validatedSchema = await createCustomerSchema.validateAsync(schema)
     } catch (e) {
-        throw new Error('Failed to validate schema ' + e)
+        throw new APIError(e)
     }
 
     const found = await findCustomerByEmail(validatedSchema.email)
     if (found) {
-        throw new Error('Customer already exists')
+        throw APIError.CustomMessage('Customer already exists')
     }
 
     try {
@@ -29,7 +30,7 @@ const addCustomer = async (schema) => {
         await customer.validate()
         await customer.save()
     } catch (e) {
-        throw new Error('Failed to save into the databse ' + e)
+        throw new APIError(e, 500)
     }
 }
 
@@ -42,7 +43,7 @@ const findCustomerByEmail = async (email) => {
     try {
         return await CustomerModel.findOne({ email: email })
     } catch (e) {
-        throw new Error('Unexpected error occured: ' + e)
+        throw new APIError(e, 500)
     }
 }
 
@@ -50,7 +51,7 @@ const findAllCustomers = async () => {
     try {
         return await CustomerModel.find({})
     } catch (e) {
-        throw new Error('Unexpected error occured: ' + e)
+        throw new APIError(e, 500)
     }
 }
 
