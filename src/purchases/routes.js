@@ -2,12 +2,13 @@ const router = require('express').Router()
 
 const { PurchaseController } = require('./controllers')
 
-router.route('/purchases')
-    .post(PurchaseController.create)
-    .get(PurchaseController.getAll)
+router
+    .route('/purchases')
+    .post(PurchaseController.createPurchase)
+    .get(PurchaseController.getAllPurchases)
 
-router.route('/purchase/:id')
-    .get(PurchaseController.get)
-    .patch(PurchaseController.update)
+router
+    .route('/purchases/:reader_card_num')
+    .get(PurchaseController.getPurchaseByCostumer)
 
 module.exports = router
