@@ -1,32 +1,18 @@
-// Schemas
-const { createCustomerSchema } = require('../schemas')
-
 // Models
 const { CustomerModel } = require('../models')
+
+// Helpers
 const { APIError } = require('../../application/helpers')
 
 /**
  * Add customer
  *
- * @param {Object} schema
+ * @param {Object} body
  * @returns {Promise<void>}
  */
-const addCustomer = async (schema) => {
-    let validatedSchema = null
-
+const addCustomer = async (body) => {
     try {
-        validatedSchema = await createCustomerSchema.validateAsync(schema)
-    } catch (e) {
-        throw new APIError(e)
-    }
-
-    const found = await findCustomerByEmail(validatedSchema.email)
-    if (found) {
-        throw APIError.CustomMessage('Customer already exists')
-    }
-
-    try {
-        const customer = new CustomerModel(validatedSchema)
+        const customer = new CustomerModel(body)
         await customer.validate()
         await customer.save()
     } catch (e) {
@@ -35,18 +21,24 @@ const addCustomer = async (schema) => {
 }
 
 /**
- * Find customer by id
+ * Find customer by reader card number
  *
- * @param {string} email
+ * @param {number} readerCardNumber
+ * @returns {Promise<*>}
  */
-const findCustomerByEmail = async (email) => {
+const findCustomerByReaderCardNumber = async (readerCardNumber) => {
     try {
-        return await CustomerModel.findOne({ email: email })
+        return await CustomerModel.findOne({ reader_card_number: readerCardNumber })
     } catch (e) {
         throw new APIError(e, 500)
     }
 }
 
+/**
+ * Find all customers
+ *
+ * @returns {Promise<*>}
+ */
 const findAllCustomers = async () => {
     try {
         return await CustomerModel.find({})
@@ -55,8 +47,28 @@ const findAllCustomers = async () => {
     }
 }
 
+/**
+ * Update customer by reader card number
+ *
+ * @param {number} readerCardNumber
+ * @param {object} body
+ * @returns {Promise<*>}
+ */
+const updateCustomerByReaderCardNumber = async (readerCardNumber, body) => {
+    try {
+        return await CustomerModel.updateOne(
+            { reader_card_number: readerCardNumber },
+            { $set: body },
+            { runValidators: true },
+        )
+    } catch (e) {
+        throw new APIError(e, 500)
+    }
+}
+
 module.exports = {
     addCustomer,
-    findCustomerByEmail,
     findAllCustomers,
+    findCustomerByReaderCardNumber,
+    updateCustomerByReaderCardNumber,
 }

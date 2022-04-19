@@ -39,7 +39,7 @@ const addInStorePurchase = async (schema) => {
         if (costumer == null) {
             throw new APIError(
                 new Error('param: reader_card_num does not exists. '),
-                500
+                500,
             )
         }
 
@@ -63,7 +63,8 @@ const addInStorePurchase = async (schema) => {
  * @param {Object} schema
  * @returns {Promise<void>}
  */
-const addWebPurchase = async (schema) => {}
+const addWebPurchase = async (schema) => {
+}
 
 /**
  * Find a Costumer by his reader card number
@@ -116,7 +117,7 @@ const calculateSubtotal = async (isbn) => {
             if (price == null) {
                 throw new APIError(
                     new Error('param: isbn index ' + i + ' is invalid'),
-                    500
+                    500,
                 )
             }
             subtotal += price

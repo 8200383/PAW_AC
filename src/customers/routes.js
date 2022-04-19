@@ -9,9 +9,9 @@ router.route('/api/customers')
     .post(CustomerController.createCustomer)
     .get(CustomerController.getAllCustomers)
 
-router.route('/api/customer/:id')
-    .get()
-    .patch()
+router.route('/api/customer/:reader_card_num')
+    .get(CustomerController.getCustomer)
+    .patch(CustomerController.patchCustomerController)
     .delete()
 
 module.exports = router
