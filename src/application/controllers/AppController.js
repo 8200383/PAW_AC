@@ -1,11 +1,11 @@
 const express = require('express')
-const path = require('path')
 const logger = require('morgan')
 
 // Aggregator
 const { ConfigAggregator } = require('../aggregators')
 
 // Modules
+const Home = require('../../home')
 const Customers = require('../../customers')
 const Purchases = require('../../purchases')
 
@@ -21,6 +21,9 @@ const configs = require('../config')
 // Helpers
 const { mergeIntoConnectionString } = require('../helpers')
 
+// CSS
+const { css } = require('../../../public')
+
 class AppController {
 
     constructor() {
@@ -30,6 +33,7 @@ class AppController {
         this.mongodb()
 
         this.aggregator = new ConfigAggregator([
+            Home,
             Customers,
             Purchases,
         ])
@@ -55,9 +59,9 @@ class AppController {
     }
 
     views() {
-        this.express.set('views', this.aggregator.getMergedViews())
         this.express.set('view engine', 'ejs')
-        this.express.use(express.static(path.join(__dirname, 'public')))
+        this.express.set('views', this.aggregator.getMergedViews())
+        this.express.use(express.static(css))
     }
 
     routes() {

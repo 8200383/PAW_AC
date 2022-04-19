@@ -1,3 +1,5 @@
+const { Request, Response } = require('express')
+
 /**
  * Generic Express error handler middleware.
  *
@@ -18,7 +20,8 @@ function errorHandlerMiddleware(error, request, response, next) {
 
     const errorResponse = {
         statusCode: error.status || error.statusCode,
-        details: error.message || error.name,
+        name: error.name,
+        message: error.message,
         stack: error.stack,
     }
 
