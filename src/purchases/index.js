@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-    name: 'Customers',
+    name: 'Purchases',
     views: path.join(__dirname, 'views'),
-    routes: require('./routes'),
+    routes: require('./routes.js'),
 }

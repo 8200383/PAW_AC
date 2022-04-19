@@ -2,8 +2,8 @@
  * Generic Express error handler middleware.
  *
  * @param {Error} error - An Error object.
- * @param {Object} request - Express request object
- * @param {Object} response - Express response object
+ * @param {Request} request - Express request object
+ * @param {Response} response - Express response object
  * @param {Function} next - Express `next()` function
  */
 function errorHandlerMiddleware(error, request, response, next) {
@@ -18,7 +18,8 @@ function errorHandlerMiddleware(error, request, response, next) {
 
     const errorResponse = {
         statusCode: error.status || error.statusCode,
-        body: getErrorMessage(error),
+        details: error.message || error.name,
+        stack: error.stack,
     }
 
     // Log an error message to stderr.
@@ -51,32 +52,6 @@ function errorHandlerMiddleware(error, request, response, next) {
 
     // Ensure any remaining middleware are run.
     next()
-}
-
-
-/**
- * Extract an error stack or error message from an Error object.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
- *
- * @param {Error} error
- * @return {string} - String representation of the error object.
- */
-function getErrorMessage(error) {
-    /**
-     * If it exists, prefer the error stack as it usually
-     * contains the most detail about an error:
-     * an error message and a function call stack.
-     */
-    if (error.stack) {
-        return error.stack
-    }
-
-    if (typeof error.toString === 'function') {
-        return error.toString()
-    }
-
-    return ''
 }
 
 module.exports = errorHandlerMiddleware

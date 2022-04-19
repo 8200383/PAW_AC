@@ -3,18 +3,23 @@ const path = require('path')
 const logger = require('morgan')
 
 // Aggregator
-const ConfigAggregator = require('../aggregators/ConfigAggregator')
+const { ConfigAggregator } = require('../aggregators')
 
 // Modules
 const Customers = require('../../customers')
-const Employees = require('../../employees')
+const Purchases = require('../../purchases')
 
 // Middlewares
-const errorHandlerMiddleware = require('../middlewares/ErrorHandlerMiddleware')
-const notFoundMiddleware = require('../middlewares/NotFoundMiddleware')
+const { errorHandlerMiddleware, notFoundMiddleware } = require('../middlewares')
 
-// Swagger
-const swaggerUI = require('swagger-ui-express')
+// Mongoose
+const mongoose = require('mongoose')
+
+// Configs
+const configs = require('../config')
+
+// Helpers
+const { mergeIntoConnectionString } = require('../helpers')
 
 class AppController {
 
@@ -22,15 +27,15 @@ class AppController {
         this.express = express()
 
         this.configs()
+        this.mongodb()
 
         this.aggregator = new ConfigAggregator([
             Customers,
-            Employees
+            Purchases,
         ])
 
         // Call after aggregator
         this.views()
-        this.swagger()
         this.routes()
 
         this.errorHandling()
@@ -42,27 +47,17 @@ class AppController {
         this.express.use(express.urlencoded({ extended: false }))
     }
 
+    mongodb() {
+        mongoose.connect(mergeIntoConnectionString(configs.mongo)).then(
+            () => console.info('Mongo connection is ready!'),
+            err => console.error(err),
+        )
+    }
+
     views() {
         this.express.set('views', this.aggregator.getMergedViews())
         this.express.set('view engine', 'ejs')
         this.express.use(express.static(path.join(__dirname, 'public')))
-    }
-
-    swagger() {
-        const options = {
-            explorer: true,
-            swaggerOptions: {
-                urls: this.aggregator.getMergedApiSpecifications(),
-            },
-        }
-
-        this.aggregator.getSwaggerFiles().map((swagger) => {
-            this.express.use(swagger.route, swagger.file)
-        })
-
-        const swaggerUrl = '/'
-        this.express.use(swaggerUrl, swaggerUI.serve)
-        this.express.get(swaggerUrl, swaggerUI.setup(null, options))
     }
 
     routes() {
