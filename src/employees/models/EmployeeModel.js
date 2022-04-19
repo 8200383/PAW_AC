@@ -1,35 +1,22 @@
 const mongoose = require('mongoose')
-const { string } = require('joi')
-
 const Schema = mongoose.Schema
 
-/**
- * Validate cell phone
- * @param {string} cellPhone
- * @returns {Promise<*>}
- */
-const validateCellPhone = async (cellPhone) => {
-    return new Promise((resolve, reject) => {
-        const expression = /^\d{9}$/
-        const match = cellPhone.match(expression)
+// Validators
+const { CellPhoneValidator, PostalCodeValidar, NIFValidator } = require('../../shared/validators')
 
-        if (match === null) {
-            return reject(new Error('Must be 9 digits'))
-        }
-
-        return resolve(true)
-    })
-}
+// Enums
+const { Gender } = require('../../shared/enums')
 
 const employeeSchema = new Schema({
     employee_no: { type: Number, require: true, unique: true },
     password: { type: String, require: true },
     name: { type: String, require: true },
-    cell_phone: { type: String, validate: validateCellPhone },
-    birthDate: Date,
-    gender: { type: String, enum: ['Male', 'Female', 'Non Binary'] },
+    nif: { type: String, validate: NIFValidator },
+    cell_phone: { type: String, validate: CellPhoneValidator },
+    birth_date: Date,
+    gender: { type: String, enum: Gender },
     nationality: String,
-    postal_code: String,
+    postal_code: { type: String, validate: PostalCodeValidar },
     address: String,
     created_at: { type: Date, default: Date.now },
     update_at: { type: Date, default: Date.now },
