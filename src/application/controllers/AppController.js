@@ -8,6 +8,7 @@ const { ConfigAggregator } = require('../aggregators')
 const Home = require('../../home')
 const Customers = require('../../customers')
 const Purchases = require('../../purchases')
+const Employees = require('../../employees')
 
 // Middlewares
 const { errorHandlerMiddleware, notFoundMiddleware } = require('../middlewares')
@@ -35,6 +36,7 @@ class AppController {
         this.aggregator = new ConfigAggregator([
             Home,
             Customers,
+            Employees,
             Purchases,
         ])
 

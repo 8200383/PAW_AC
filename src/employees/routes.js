@@ -1,14 +1,14 @@
 const router = require('express').Router()
 
-const Crontroller = require('./controllers/ControllerEmployee.js')
+const { EmployeeController } = require('./controllers')
 
 router.route('/employees')
-    .get(Crontroller.ViewAllEmployees)
-    .post(Crontroller.CreateEmployee)
+    .get()
+    .post(EmployeeController.createEmployee)
 
 router.route('/employee/:id')
-    .get(Crontroller.ViewEmployee)
-    .delete(Crontroller.DeleteEmployee)
-    .patch(Crontroller.UpdateEmployee)
+    .get()
+    .delete()
+    .patch()
 
 module.exports = router
