@@ -4,13 +4,13 @@ const middlewares = require('./src/middlewares')
 
 const framework = express()
 
-const { http, paths, database, auth } = require('./src/configs')
+const { Http, Paths, Database, Auth } = require('./src/configs')
 
-http(framework)
-paths(framework)
-auth(framework)
+Http(framework)
+Paths(framework)
+Auth(framework)
 
-database
+Database
     .then(() => console.info('MongoDB connected'))
     .catch((e) => console.error(e))
 
