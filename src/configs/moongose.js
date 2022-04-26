@@ -10,7 +10,7 @@ const connection = mongoose.connect(
     },
 )
 
-mongoose.Promise = global.Promise
+//mongoose.Promise = global.Promise
 mongoose.set('useCreateIndex', true)
 
 module.exports = connection

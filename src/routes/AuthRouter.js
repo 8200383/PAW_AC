@@ -4,7 +4,6 @@ const { AuthHandler } = require('../handlers')
 
 const router = express.Router()
 
-router.post('/signup', AuthHandler.signUp)
-router.post('/signin', AuthHandler.signIn)
+router.route('/auth').post(AuthHandler.auth)
 
 module.exports = router

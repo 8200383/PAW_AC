@@ -1,24 +1,19 @@
 const passport = require('passport')
-const { Strategy: LocalStrategy } = require('passport-local')
 const { Account } = require('../schemas')
 const { Strategy: JWTStrategy } = require('passport-jwt')
 const ExtractJWT = require('passport-jwt').ExtractJwt
-
-// use static authenticate method of model in LocalStrategy
-passport.use(new LocalStrategy(Account.authenticate()))
-
-// use static serialize and deserialize of model for passport session support
-passport.serializeUser(Account.serializeUser())
-passport.deserializeUser(Account.deserializeUser())
+const jwtSecret = require('./security.json')
 
 passport.use(new JWTStrategy(
     {
-        secretOrKey: 'TOP_SECRET',
+        secretOrKey: jwtSecret.secret,
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     },
     async (token, done) => {
+        console.info(token)
+
         try {
-            const account = await Account.findOne({ _id: token._id })
+            const account = await Account.findOne({ email: token.iss })
 
             return done(null, account)
         } catch (error) {
@@ -29,5 +24,4 @@ passport.use(new JWTStrategy(
 
 module.exports = framework => {
     framework.use(passport.initialize())
-    framework.use(passport.session())
 }

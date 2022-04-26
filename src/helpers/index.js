@@ -1,3 +1,4 @@
 module.exports = {
-    mergeIntoConnectionString: require('./ConnectionString')
+    mergeIntoConnectionString: require('./ConnectionString'),
+    generateToken: require('./GenerateToken'),
 }
