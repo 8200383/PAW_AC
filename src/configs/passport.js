@@ -13,7 +13,7 @@ passport.use(new JWTStrategy(
         console.info(token)
 
         try {
-            const account = await Account.findOne({ email: token.iss })
+            const account = await Account.findOne({ email: token.email })
 
             return done(null, account)
         } catch (error) {
@@ -23,5 +23,5 @@ passport.use(new JWTStrategy(
 ))
 
 module.exports = framework => {
-    framework.use(passport.initialize())
+    framework.use(passport.initialize({}))
 }

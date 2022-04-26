@@ -15,7 +15,10 @@ const auth = async (req, res, next) => {
     const { isValidPassword, account } = await Account.findOne({ email: req.body.email }).then((found) => {
         return {
             isValidPassword: compareSync(req.body.password, found.password),
-            account: found,
+            account: {
+                email: found.email,
+                role: found.role,
+            },
         }
     })
 
@@ -26,10 +29,16 @@ const auth = async (req, res, next) => {
     }
 
     if (account) {
-        return res.json({
-            message: 'Signin successful',
-            token: generateToken(account),
-        })
+        try {
+            const token = await generateToken(account)
+
+            return res.json({
+                message: 'Signin successful',
+                token: token,
+            })
+        } catch (e) {
+            return next(e)
+        }
     }
 
     try {

@@ -1,18 +1,21 @@
 const jwt = require('jsonwebtoken')
-const jwtSecret = require('../configs/security.json')
+const security = require('../configs/security.json')
 
 /**
  * Generate JWT Token
- * @param {object} account
+ * @param {{email: String, role: String}} payload
  * @returns {*}
  */
-const generateToken = (account) => {
-    return jwt.sign({
-        iss: account.email,
-        role: account.role,
-        iat: new Date().getTime(),
-        exp: new Date().setDate(new Date().getDate() + 1),
-    }, jwtSecret.secret)
+const generateToken = (payload) => {
+    const options = { expiresIn: '1h' }
+
+    return new Promise((resolve, reject) => {
+        jwt.sign(payload, security.secret, options, (err, token) => {
+            if (err) reject(err)
+
+            resolve(token)
+        })
+    })
 }
 
 module.exports = generateToken
