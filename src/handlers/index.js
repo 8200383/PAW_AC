@@ -1,3 +1,4 @@
 module.exports = {
-    AuthHandler: require('./AuthHandler')
+    AuthHandler: require('./AuthHandler'),
+    DashboardHandler: require('./DashboardHandler'),
 }
