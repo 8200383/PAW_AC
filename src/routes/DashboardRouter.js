@@ -1,12 +1,12 @@
 const router = require('express').Router()
 const { DashboardHandler } = require('../handlers')
-const passport = require('passport')
+const { authMiddleware } = require('../middlewares')
 
 router.route('/')
     .get(DashboardHandler.index)
 
 router.route('/protected').get(
-    passport.authenticate('jwt', { session: false }),
+    authMiddleware,
     (req, res) => {
         return res.json({ 'status': 'ok' })
     },
