@@ -7,6 +7,7 @@ const routes = require('./src/routes');
 const middlewares = require('./src/middlewares')
 
 require('./src/auth');
+require('./src/configs/moongose')
 
 const app = express();
 
