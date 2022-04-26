@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' href='/stylesheets/compiled.css' />
+    <script src="/javascripts/hideDropdowns.js"></script>
 </head>
 <body>
 <div class="h-screen flex overflow-hidden bg-white">
@@ -159,7 +160,8 @@
                     <div>
                         <button type="button"
                                 class="group w-full bg-gray-100 rounded-md px-3.5 py-2 text-sm text-left font-medium text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-purple-500"
-                                id="options-menu-button" aria-expanded="false" aria-haspopup="true">
+                                id="options-menu-button" aria-expanded="false" aria-haspopup="true"
+                                onclick=hideDropdowns("id1")>
               <span class="flex w-full justify-between items-center">
                 <span class="flex min-w-0 items-center justify-between space-x-3">
                   <img class="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0"
@@ -191,8 +193,9 @@
                         From: "transform opacity-100 scale-100"
                         To: "transform opacity-0 scale-95"
                     -->
-                    <div class="z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
-                         role="menu" aria-orientation="vertical" aria-labelledby="options-menu-button" tabindex="-1">
+                    <div class="hidden z-10 mx-3 origin-top absolute right-0 left-0 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
+                         role="menu" aria-orientation="vertical" aria-labelledby="options-menu-button" tabindex="-1"
+                         id="id1">
                         <div class="py-1" role="none">
                             <!-- Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700" -->
                             <a href="#" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1"
@@ -434,7 +437,7 @@
                                 <button type="button"
                                         class="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
                                         id="pinned-project-options-menu-0-button" aria-expanded="false"
-                                        aria-haspopup="true">
+                                        aria-haspopup="true" onclick=hideDropdowns("id3")>
                                     <span class="sr-only">Open options</span>
                                     <!-- Heroicon name: solid/dots-vertical -->
                                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
@@ -453,9 +456,9 @@
                                     From: "transform opacity-100 scale-100"
                                     To: "transform opacity-0 scale-95"
                                 -->
-                                <div class="z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
+                                <div class="hidden z-10 mx-3 origin-top-right absolute right-10 top-3 w-48 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
                                      role="menu" aria-orientation="vertical"
-                                     aria-labelledby="pinned-project-options-menu-0-button" tabindex="-1">
+                                     aria-labelledby="pinned-project-options-menu-0-button" tabindex="-1" id="id3">
                                     <div class="py-1" role="none">
                                         <!-- Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700" -->
                                         <a href="#" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem"
@@ -570,7 +573,7 @@
                                     <button type="button"
                                             class="w-8 h-8 bg-white inline-flex items-center justify-center text-gray-400 rounded-full hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
                                             id="project-options-menu-0-button" aria-expanded="false"
-                                            aria-haspopup="true">
+                                            aria-haspopup="true" onclick='hideDropdowns("id2")'>
                                         <span class="sr-only">Open options</span>
                                         <!-- Heroicon name: solid/dots-vertical -->
                                         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
@@ -589,9 +592,9 @@
                                         From: "transform opacity-100 scale-100"
                                         To: "transform opacity-0 scale-95"
                                     -->
-                                    <div class="mx-3 origin-top-right absolute right-7 top-0 w-48 mt-1 rounded-md shadow-lg z-10 bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
+                                    <div class="hidden mx-3 origin-top-right absolute right-7 top-0 w-48 mt-1 rounded-md shadow-lg z-10 bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none"
                                          role="menu" aria-orientation="vertical"
-                                         aria-labelledby="project-options-menu-0-button" tabindex="-1">
+                                         aria-labelledby="project-options-menu-0-button" tabindex="-1" id="id2">
                                         <div class="py-1" role="none">
                                             <!-- Active: "bg-gray-100 text-gray-900", Not Active: "text-gray-700" -->
                                             <a href="#" class="text-gray-700 group flex items-center px-4 py-2 text-sm"
