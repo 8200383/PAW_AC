@@ -6,21 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' href='/stylesheets/compiled.css' />
     <script src="/javascripts/hideDropdowns.js"></script>
-    <script src="/javascripts/customers.js"></script>
+    <script src="/javascripts/pwa.js"></script>
 </head>
 <body>
 <div class="h-screen flex overflow-hidden bg-white">
-    <%- include('sidebar', { navigation: [
-    { name: 'Customers', href: '/customers' },
-    { name: 'Employees', href: '/employees' },
-    { name: 'Purchases', href: '/purchases' },
-    { name: 'Books', href: '/books' },
-    ] }); %>
+    <%- include('sidebar', { navigation }); %>
 
     <!-- Main column -->
     <div class="flex flex-col w-0 flex-1 overflow-hidden">
         <%- include('toggler') %>
-        <%- include('header', { page, action }) %>
+        <%- include('header', { page: "Dashboard", action: "New" }) %>
 
         <main class="flex-1 relative z-0 overflow-y-auto focus:outline-none">
             <div class="align-middle inline-block min-w-full border-b border-gray-200">

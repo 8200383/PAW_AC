@@ -44,7 +44,7 @@ const extractColumns = (row) => {
         })
 }
 
-const onReady = () => {
+const onCustomers = () => {
     fetch(URL)
         .then(res => res.json())
         .then(raw => raw['customers'])
@@ -61,5 +61,3 @@ const onReady = () => {
         })
         .catch(err => console.error(err))
 }
-
-document.addEventListener('DOMContentLoaded', onReady, false)
