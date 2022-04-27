@@ -1,10 +1,19 @@
-const loadModule = (module) => {
-    if (document.getElementById(module) == null) {
-        loadJavascript(module, `/javascripts/${module}.js`, document.body).then(() => {
-            console.log(`[!] ${module} has been loaded`)
-            onLoad()
-        })
+const loadModule = async (module) => {
+    const script = document.getElementById(module)
+
+    if (script) {
+        script.remove()
     }
+
+    loadJavascript(module, `/javascripts/${module}.js`, document.body).then(() => {
+        console.log(`[!] ${module} has been loaded`)
+        onLoad()
+    })
+}
+
+const unloadJavascript = () => {
+    const scripts = document.body.getElementsByTagName('script')
+    scripts.forEach((script) => script.remove())
 }
 
 /**
