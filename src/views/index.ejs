@@ -9,7 +9,12 @@
 </head>
 <body>
 <div class="h-screen flex overflow-hidden bg-white">
-    <%- include('sidebar', { navigation }); %>
+    <%- include('sidebar', { navigation: [
+    { name: 'Customers', href: '/customers' },
+    { name: 'Employees', href: '/employees' },
+    { name: 'Purchases', href: '/purchases' },
+    { name: 'Books', href: '/books' },
+    ] }); %>
 
     <!-- Main column -->
     <div class="flex flex-col w-0 flex-1 overflow-hidden">
