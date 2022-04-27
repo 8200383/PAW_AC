@@ -2,9 +2,6 @@ const router = require('express').Router()
 
 const { CustomersHandler } = require('../handlers')
 
-router.route('/customers')
-    .get(CustomersHandler.index)
-
 router.route('/api/customers')
     .get(CustomersHandler.getAllCustomers)
     .post(CustomersHandler.createCustomer)
