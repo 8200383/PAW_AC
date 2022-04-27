@@ -1,44 +1,63 @@
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
+const { Request, Response } = require('express')
+const { Account } = require('../schemas')
+const { hash, compareSync } = require('bcrypt')
+const security = require('../configs/security.json')
+const { generateToken } = require('../helpers')
 
-const signUp = async (req, res, next) => {
-    res.json({
-        message: 'Signup successful',
-        user: req.user
-    });
-}
+/**
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {Function} next
+ */
+const auth = async (req, res, next) => {
 
-const signIn = async (req, res, next) => {
-    return passport.authenticate(
-        'login',
-        async (err, user, info) => {
-            try {
-                if (err || !user) {
-                    const error = new Error('An error occurred.');
-
-                    return next(error);
-                }
-
-                req.login(
-                    user,
-                    { session: false },
-                    async (error) => {
-                        if (error) return next(error);
-
-                        const body = { _id: user._id, email: user.email };
-                        const token = jwt.sign({ user: body }, 'TOP_SECRET');
-
-                        return res.json({ token });
-                    }
-                );
-            } catch (error) {
-                return next(error);
-            }
+    const { isValidPassword, account } = await Account.findOne({ email: req.body.email }).then((found) => {
+        return {
+            isValidPassword: compareSync(req.body.password, found.password),
+            account: {
+                email: found.email,
+                role: found.role,
+            },
         }
-    )(req, res, next);
+    })
+
+    if (!isValidPassword) {
+        return res.status(400).json({
+            message: 'Wrong password',
+        })
+    }
+
+    if (account) {
+        try {
+            const token = await generateToken(account)
+
+            return res.json({
+                message: 'Signin successful',
+                token: token,
+            })
+        } catch (e) {
+            return next(e)
+        }
+    }
+
+    try {
+        const encrypted = await hash(req.body.password, security.saltRounds)
+        const account = await Account.create({
+            email: req.body.email,
+            password: encrypted,
+            role: req.body.role,
+        })
+
+        return res.json({
+            message: 'Signup successful',
+            account: account,
+        })
+    } catch (e) {
+        return next(e)
+    }
 }
 
 module.exports = {
-    signUp,
-    signIn
+    auth,
 }
