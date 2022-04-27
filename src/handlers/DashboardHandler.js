@@ -1,10 +1,10 @@
 const index = async (req, res, next) => {
     return res.render('index', {
         navigation: [
-            { name: 'Customers', href: '/customers' },
-            { name: 'Employees', href: '/employees' },
-            { name: 'Purchases', href: '/purchases' },
-            { name: 'Books', href: '/books' },
+            { name: 'Customers', module: 'customers' },
+            { name: 'Employees', module: 'employees' },
+            { name: 'Purchases', module: 'purchases' },
+            { name: 'Books', module: 'books' },
         ],
     })
 }

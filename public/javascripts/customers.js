@@ -44,7 +44,10 @@ const extractColumns = (row) => {
         })
 }
 
-const onCustomers = () => {
+const onLoad = () => {
+    document.getElementById('title').innerText = 'Customers'
+    document.getElementById('action').innerText = 'Create customer'
+
     fetch(URL)
         .then(res => res.json())
         .then(raw => raw['customers'])

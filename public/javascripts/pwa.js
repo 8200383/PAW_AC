@@ -1,10 +1,17 @@
-const onReady = () => {
-    loadJavascript('/javascripts/customers.js', document.body).then(() => {
-        console.log('[!] Customers has been loaded')
-        onCustomers();
+const loadModule = (module) => {
+    loadJavascript(`/javascripts/${module}.js`, document.body).then(() => {
+        console.log(`[!] ${module} has been loaded`)
+        onLoad()
     })
 }
 
+/**
+ * Load Javascript file dynamiclly
+ *
+ * @param {string} url
+ * @param {HTMLElement} location
+ * @returns {Promise<*>}
+ */
 var loadJavascript = (url, location) => {
     //url is URL of external file, implementationCode is the code
     //to be called from the file, location is the location to
@@ -20,5 +27,3 @@ var loadJavascript = (url, location) => {
         location.appendChild(scriptTag)
     })
 }
-
-document.addEventListener('DOMContentLoaded', onReady, false)
