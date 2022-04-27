@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' href='/stylesheets/compiled.css' />
     <script src="/javascripts/hideDropdowns.js"></script>
+    <script src="/javascripts/customers.js"></script>
 </head>
 <body>
 <div class="h-screen flex overflow-hidden bg-white">
@@ -22,7 +23,35 @@
         <%- include('header', { page, action }) %>
 
         <main class="flex-1 relative z-0 overflow-y-auto focus:outline-none">
-            <%- include('table', { columns: [], lines: [] }) %>
+            <div class="align-middle inline-block min-w-full border-b border-gray-200">
+                <table class="min-w-full">
+                    <thead>
+                    <tr id='columns' class="border-t border-gray-200">
+                        <th id='lastColumn'
+                            class="pr-6 py-3 border-b border-gray-200 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                    <tr id='rows'>
+                        <td id='actions' class="pr-6">
+                            <div class="relative flex justify-end items-center space-x-2">
+                                <% [{ label: 'View', color: 'bg-indigo-100 hover:bg-indigo-200 text-indigo-800' },
+                                    { label: 'Edit', color: 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800 ' },
+                                    { label: 'Delete', color: 'bg-red-100 hover:bg-red-200 text-red-800' },
+                                ].forEach(function(action) { %>
+                                    <button type="button"
+                                            class="inline-flex text-xs font-medium px-2.5 py-0.5 rounded <%= action.color %>">
+                                        <span><%= action.label %></span>
+                                    </button>
+                                <% }) %>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </main>
     </div>
 </div>
