@@ -9,4 +9,9 @@ function hideDropdowns(id) {
 function hideMobileSidebar() {
     hideDropdowns('mobileSidebar')
     hideDropdowns('mobileShadow')
+    hideDropdowns('mobileLock')
+}
+
+function hideProfileMobile() {
+    hideDropdowns('mobileProfile')
 }
