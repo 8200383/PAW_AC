@@ -10,14 +10,12 @@ passport.use(new JWTStrategy(
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     },
     async (token, done) => {
-        console.info(token)
-
         try {
             const account = await Account.findOne({ email: token.email })
 
             return done(null, account)
         } catch (error) {
-            done(error, false)
+            return done(error, false)
         }
     },
 ))
