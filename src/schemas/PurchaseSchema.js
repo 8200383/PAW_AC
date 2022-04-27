@@ -16,7 +16,7 @@ const purchaseSchema = new Schema({
         required: true,
     },
     isbn: {
-        type: String,
+        type: [String],
         required: true,
     },
     spent_balance: {
