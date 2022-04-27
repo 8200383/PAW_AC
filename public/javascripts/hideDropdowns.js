@@ -5,3 +5,8 @@ function hideDropdowns(id) {
         document.getElementById(id).classList.add('hidden')
     }
 }
+
+function hideMobileSidebar() {
+    hideDropdowns('mobileSidebar')
+    hideDropdowns('mobileShadow')
+}
