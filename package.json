@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./app.js",
-    "build:css": "postcss public/stylesheets/tailwind.css -o public/stylesheets/compiled.css"
+    "build:css": "postcss public/stylesheets/tailwind.css -o public/stylesheets/compiled.css --watch"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.0",
