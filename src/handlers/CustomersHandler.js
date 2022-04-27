@@ -1,6 +1,20 @@
 const { Customer } = require('../schemas')
 
 /**
+ * Index page for Customers
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * @returns {Promise<*>}
+ */
+const index = async (req, res, next) => {
+    return res.render('index', {
+        page: 'Customers',
+        action: 'Create Customer',
+    })
+}
+
+/**
  * Create a Customer
  *
  * @param {Request} req
@@ -100,6 +114,7 @@ const deleteCustomer = async (req, res, next) => {
 }
 
 module.exports = {
+    index,
     createCustomer,
     getAllCustomers,
     getCustomer,

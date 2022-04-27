@@ -9,7 +9,6 @@ const { Gender } = require('./enums')
 
 const employeeSchema = new Schema({
     employee_no: { type: Number, require: true, unique: true },
-    password: { type: String, require: true },
     name: { type: String, require: true },
     nif: { type: String, validate: NIFValidator },
     cell_phone: { type: String, validate: CellPhoneValidator },
