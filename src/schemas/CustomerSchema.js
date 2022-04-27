@@ -10,8 +10,6 @@ const { Gender } = require('./enums')
 const customerSchema = new Schema({
     reader_card_num: { type: Number, unique: true, required: true },
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, trim: true, lowercase: true },
-    password: { type: String, required: true },
     cell_phone: { type: String, validate: CellPhoneValidator },
     birth_date: Date,
     gender: { type: String, enum: Gender },
