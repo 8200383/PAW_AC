@@ -1,4 +1,4 @@
-const loadModule = async (module) => {
+const loadModule = (module) => {
     const script = document.getElementById(module)
 
     if (script) {

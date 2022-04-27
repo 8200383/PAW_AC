@@ -1,5 +1,3 @@
-const URL = 'http://localhost:3000/api/customers'
-
 const classNames = (...strings) => {
     return strings.join(' ')
 }
@@ -44,11 +42,15 @@ const extractColumns = (row) => {
         })
 }
 
+const renderTable = () => {
+
+}
+
 const onLoad = () => {
     document.getElementById('title').innerText = 'Customers'
     document.getElementById('action').innerText = 'Create customer'
 
-    fetch(URL)
+    fetch('http://localhost:3000/api/customers')
         .then(res => res.json())
         .then(raw => raw['customers'])
         .then(customers => {
