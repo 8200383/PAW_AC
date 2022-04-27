@@ -1,4 +1,7 @@
 module.exports = {
     AuthHandler: require('./AuthHandler'),
-    CustomersHandler: require('./CustomersHandler')
+    DashboardHandler: require('./DashboardHandler'),
+    CustomersHandler: require('./CustomersHandler'),
+    EmployeesHandler: require('./EmployeesHandler'),
+    PurchasesHandler: require('./PurchasesHandler'),
 }
