@@ -104,5 +104,5 @@ module.exports = {
     getAllCustomers,
     getCustomer,
     patchCustomer,
-    deleteCustomer
+    deleteCustomer,
 }
