@@ -8,5 +8,7 @@ router.route('/api/customers')
 
 router.route('/api/customer/:reader_card_num')
     .get(CustomersHandler.getCustomer)
+    .patch(CustomersHandler.patchCustomer)
+    .delete(CustomersHandler.deleteCustomer)
 
 module.exports = router
