@@ -1,20 +1,6 @@
 const { Customer } = require('../schemas')
 
 /**
- * Index page for Customers
- * @param {Request} req
- * @param {Response} res
- * @param {NextFunction} next
- * @returns {Promise<*>}
- */
-const index = async (req, res, next) => {
-    return res.render('index', {
-        page: 'Customers',
-        action: 'Create Customer',
-    })
-}
-
-/**
  * Create a Customer
  *
  * @param {Request} req
@@ -25,7 +11,7 @@ const createCustomer = async (req, res, next) => {
     try {
         const customer = await Customer.create(req.body)
 
-        res.status(200).json({
+        return res.status(200).json({
             message: 'Customer successfully added',
             customer: customer,
         })
@@ -45,7 +31,17 @@ const getAllCustomers = async (req, res, next) => {
     try {
         const customers = await Customer.find({})
 
-        return res.status(200).json({ customers: customers })
+        const output = customers.map((customer) => {
+            return {
+                reader_card_num: customer.reader_card_num,
+                name: customer.name,
+                birth_date: customer.birth_date ?? " ",
+                cell_phone: customer.cell_phone ?? " ",
+                country: customer.country ?? " ",
+            }
+        })
+
+        return res.status(200).json({ customers: output })
     } catch (e) {
         return next(e)
     }
@@ -114,7 +110,6 @@ const deleteCustomer = async (req, res, next) => {
 }
 
 module.exports = {
-    index,
     createCustomer,
     getAllCustomers,
     getCustomer,
