@@ -1,19 +1,15 @@
+const classNames = (...strings) => {
+    return strings.join(' ')
+}
+
 const loadModule = (module) => {
     const script = document.getElementById(module)
-
-    if (script) {
-        script.remove()
-    }
+    if (script) return
 
     loadJavascript(module, `/javascripts/${module}.js`, document.body).then(() => {
         console.log(`[!] ${module} has been loaded`)
         onLoad()
     })
-}
-
-const unloadJavascript = () => {
-    const scripts = document.body.getElementsByTagName('script')
-    scripts.forEach((script) => script.remove())
 }
 
 /**
