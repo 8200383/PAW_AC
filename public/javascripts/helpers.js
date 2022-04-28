@@ -1,3 +1,7 @@
+const classNames = (...strings) => {
+    return strings.join(' ')
+}
+
 /**
  * Create an element on html
  * @param {string} where
@@ -99,10 +103,6 @@ const extractColumns = (firstRow) => {
         .map((column) => column.replaceAll('_', ' '))
 }
 
-const classNames = (...strings) => {
-    return strings.join(' ')
-}
-
 function hideDropdowns(id) {
     if (document.getElementById(id).classList.contains('hidden')) {
         document.getElementById(id).classList.remove('hidden')
@@ -120,3 +120,26 @@ function hideMobileSidebar() {
 function hideProfileMobile() {
     hideDropdowns('mobileProfile')
 }
+
+
+const columnStyles = classNames(
+    'px-6 py-3',
+    'border-b border-gray-200 bg-gray-50',
+    'text-left text-xs font-medium text-gray-500',
+    'uppercase tracking-wider',
+)
+
+const rowStyles = classNames(
+    'px-6 py-3',
+    'whitespace-nowrap text-sm text-gray-800',
+)
+
+const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
+
+const trStyles = classNames('border-t border-gray-200')
+
+const thStyles = classNames(
+    'px-6 py-3 border-b border-gray-200 bg-gray-50',
+    'text-left text-xs font-medium text-gray-500',
+    'uppercase tracking-wider',
+)
