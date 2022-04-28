@@ -4,4 +4,5 @@ module.exports = {
     CustomersHandler: require('./CustomersHandler'),
     EmployeesHandler: require('./EmployeesHandler'),
     PurchasesHandler: require('./PurchasesHandler'),
+    BooksHandler: require('./BooksHandler'),
 }
