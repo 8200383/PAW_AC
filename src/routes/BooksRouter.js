@@ -3,7 +3,7 @@ const router = require('express').Router()
 const { BooksHandler } = require('../handlers')
 
 router
-    .route('/books')
+    .route('/api/books')
     .post(BooksHandler.createBook)
     .get(BooksHandler.getAllBooks)
 

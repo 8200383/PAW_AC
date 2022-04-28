@@ -17,7 +17,7 @@ const createBook = async (req, res, next) => {
                 req.body.isbn,
                 req.body.stock_new,
                 req.body.stock_used,
-                book
+                book,
             )
             await addBook(schema)
             res.status(200).json({ added_book: schema })
@@ -131,13 +131,21 @@ const updateStockUsed = async (req, res, next) => {
  * @param {NextFunction} next
  */
 const getAllBooks = async (req, res, next) => {
-    var books = null
-
     try {
-        books = await Book.find({})
-        res.status(200).json({ books: books })
+        const books = await Book.find({})
+
+        const output = books.map((book) => {
+            return {
+                isbn: book.isbn,
+                title: book.title,
+                authors: book.authors.join(', '),
+                publisher: book.publisher,
+            }
+        })
+
+        return res.status(200).json({ books: output })
     } catch (e) {
-        next(e)
+        return next(e)
     }
 }
 

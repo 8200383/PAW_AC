@@ -30,7 +30,18 @@ const createEmployee = async (req, res, next) => {
 const getAllEmployees = async (req, res, next) => {
     try {
         const employees = await Employee.find({})
-        res.status(200).json({ employees })
+
+        const output = employees.map((employeee) => {
+            return {
+                employee_no: employeee.employee_no,
+                name: employeee.name,
+                nif: employeee.nif ?? ' ',
+                cell_phone: employeee.cell_phone ?? ' ',
+                postal_code: employeee.postal_code ?? ' ',
+            }
+        })
+
+        return res.status(200).json({ employees: output })
     } catch (e) {
         return next(e)
     }
