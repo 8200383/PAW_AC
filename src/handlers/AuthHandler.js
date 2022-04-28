@@ -1,6 +1,6 @@
 const { Request, Response } = require('express')
 const { Account } = require('../schemas')
-const { hash, compareSync } = require('bcrypt')
+const { hash, compare } = require('bcrypt')
 const security = require('../configs/security.json')
 const { generateToken } = require('../helpers')
 
@@ -12,33 +12,34 @@ const { generateToken } = require('../helpers')
  */
 const auth = async (req, res, next) => {
 
-    const { isValidPassword, account } = await Account.findOne({ email: req.body.email }).then((found) => {
-        return {
-            isValidPassword: compareSync(req.body.password, found.password),
-            account: {
-                email: found.email,
-                role: found.role,
-            },
-        }
-    })
-
-    if (!isValidPassword) {
-        return res.status(400).json({
-            message: 'Wrong password',
+    const { hasAccount, account } = await Account.findOne({ email: req.body.email })
+        .then((result) => {
+            return { hasAccount: true, account: result }
         })
-    }
+        .catch((e) => {
+            console.log(e)
+            return { hasAccount: false, account: null }
+        })
 
-    if (account) {
-        try {
-            const token = await generateToken(account)
+    console.log(hasAccount, account)
 
-            return res.json({
-                message: 'Signin successful',
-                token: token,
-            })
-        } catch (e) {
-            return next(e)
+
+    if (hasAccount) {
+
+        const isValid = await compare(req.body.password, account.password).catch((e) => {
+            return e !== null
+        })
+
+        if (!isValid) {
+            return next(new Error('Wrong password'))
         }
+
+        const token = await generateToken({ email: account.email, role: account.role })
+
+        return res.json({
+            message: 'Signin successful',
+            token: token,
+        })
     }
 
     try {
