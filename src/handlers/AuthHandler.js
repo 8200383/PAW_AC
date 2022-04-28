@@ -1,6 +1,6 @@
 const { Request, Response } = require('express')
 const { Account } = require('../schemas')
-const { hash, compareSync } = require('bcrypt')
+const { hash, compare } = require('bcrypt')
 const security = require('../configs/security.json')
 const { generateToken } = require('../helpers')
 
@@ -12,33 +12,33 @@ const { generateToken } = require('../helpers')
  */
 const auth = async (req, res, next) => {
 
-    const { isValidPassword, account } = await Account.findOne({ email: req.body.email }).then((found) => {
-        return {
-            isValidPassword: compareSync(req.body.password, found.password),
-            account: {
-                email: found.email,
-                role: found.role,
-            },
-        }
-    })
-
-    if (!isValidPassword) {
-        return res.status(400).json({
-            message: 'Wrong password',
+    const { hasAccount, account } = await Account.findOne({ email: req.body.email })
+        .then((result) => {
+            return { hasAccount: result !== null, account: result }
         })
-    }
+        .catch((e) => {
+            return { hasAccount: false, account: null }
+        })
 
-    if (account) {
-        try {
-            const token = await generateToken(account)
+    if (hasAccount) {
 
-            return res.json({
-                message: 'Signin successful',
-                token: token,
-            })
-        } catch (e) {
-            return next(e)
+        const isValid = await compare(req.body.password, account.password).catch((e) => {
+            return e !== null
+        })
+
+        if (!isValid) {
+            const error = new Error('Wrong password')
+            error.status = 401
+
+            return next(error)
         }
+
+        const token = await generateToken({ email: account.email, role: account.role })
+
+        return res.json({
+            message: 'Signin successful',
+            token: token,
+        })
     }
 
     try {
@@ -54,7 +54,10 @@ const auth = async (req, res, next) => {
             account: account,
         })
     } catch (e) {
-        return next(e)
+        const error = new Error(e.message)
+        error.status = 400
+
+        return next(error)
     }
 }
 
