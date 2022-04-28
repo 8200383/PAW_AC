@@ -14,15 +14,11 @@ const auth = async (req, res, next) => {
 
     const { hasAccount, account } = await Account.findOne({ email: req.body.email })
         .then((result) => {
-            return { hasAccount: true, account: result }
+            return { hasAccount: result !== null, account: result }
         })
         .catch((e) => {
-            console.log(e)
             return { hasAccount: false, account: null }
         })
-
-    console.log(hasAccount, account)
-
 
     if (hasAccount) {
 
@@ -31,7 +27,10 @@ const auth = async (req, res, next) => {
         })
 
         if (!isValid) {
-            return next(new Error('Wrong password'))
+            const error = new Error('Wrong password')
+            error.status = 401
+
+            return next(error)
         }
 
         const token = await generateToken({ email: account.email, role: account.role })
@@ -55,7 +54,10 @@ const auth = async (req, res, next) => {
             account: account,
         })
     } catch (e) {
-        return next(e)
+        const error = new Error(e.message)
+        error.status = 400
+
+        return next(error)
     }
 }
 
