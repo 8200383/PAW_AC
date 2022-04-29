@@ -116,8 +116,10 @@ function hideMobileSidebar() {
     hideDropdowns('mobileLock')
 }
 
-function hideProfileMobile() {
-    hideDropdowns('mobileProfile')
+function hideFormSidebar() {
+    hideDropdowns('formSidebar')
+    hideDropdowns('formShadow')
+    hideDropdowns('formLock')
 }
 
 const columnStyles = classNames(
@@ -171,3 +173,6 @@ const remodelPurchasesTable = (purchases) => {
         tr.firstChild.firstChild.remove()
     })
 }
+
+document.getElementById('FormButtonClose').addEventListener('click', hideFormSidebar)
+document.getElementById('action').addEventListener('click', hideFormSidebar)
