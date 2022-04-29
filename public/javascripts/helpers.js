@@ -99,8 +99,7 @@ const renderTable = (columns, rows) => {
 }
 
 const extractColumns = (firstRow) => {
-    return Object.keys(firstRow)
-        .map((column) => column.replaceAll('_', ' '))
+    return Object.keys(firstRow).map((column) => column.replaceAll('_', ' '))
 }
 
 function hideDropdowns(id) {
@@ -121,17 +120,16 @@ function hideProfileMobile() {
     hideDropdowns('mobileProfile')
 }
 
-
 const columnStyles = classNames(
     'px-6 py-3',
     'border-b border-gray-200 bg-gray-50',
     'text-left text-xs font-medium text-gray-500',
-    'uppercase tracking-wider',
+    'uppercase tracking-wider'
 )
 
 const rowStyles = classNames(
     'px-6 py-3',
-    'whitespace-nowrap text-sm text-gray-800',
+    'whitespace-nowrap text-sm text-gray-800'
 )
 
 const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
@@ -141,5 +139,35 @@ const trStyles = classNames('border-t border-gray-200')
 const thStyles = classNames(
     'px-6 py-3 border-b border-gray-200 bg-gray-50',
     'text-left text-xs font-medium text-gray-500',
-    'uppercase tracking-wider',
+    'uppercase tracking-wider'
 )
+
+const remodelPurchasesTable = (purchases) => {
+    const container = document.getElementById('container')
+    const tbody = container.firstChild.firstChild.nextSibling
+    const tableRows = tbody.childNodes
+    var purchaseCounter = 0
+
+    tableRows.forEach((tr) => {
+        var isbn = purchases[purchaseCounter++].isbn.split(',')
+        var newTable = document.createElement('table')
+
+        isbn.forEach((isbn) => {
+            var newTr = document.createElement('tr')
+            var isbnTd = document.createElement('td')
+            var quantityTd = document.createElement('td')
+            var isbnDiv = tr.firstChild.firstChild.cloneNode(true)
+            var quantityDiv = tr.firstChild.firstChild.cloneNode(true)
+
+            newTable.appendChild(newTr)
+            newTr.appendChild(isbnTd)
+            newTr.appendChild(quantityTd)
+            isbnTd.appendChild(isbnDiv)
+            quantityTd.appendChild(quantityDiv)
+            tr.firstChild.appendChild(newTable)
+            isbnDiv.innerHTML = isbn
+            quantityDiv.innerHTML = 2 //brute force
+        })
+        tr.firstChild.firstChild.remove()
+    })
+}

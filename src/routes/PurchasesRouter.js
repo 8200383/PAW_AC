@@ -3,7 +3,7 @@ const router = require('express').Router()
 const { PurchasesHandler } = require('../handlers')
 
 router
-    .route('/purchases')
+    .route('/api/purchases')
     .post(PurchasesHandler.createPurchase)
     .get(PurchasesHandler.getAllPurchases)
 

@@ -178,10 +178,37 @@ const bookExists = async (book) => {
 const getAllPurchases = async (req, res, next) => {
     try {
         const purchases = await Purchase.find({})
-        res.status(200).json({ purchases: purchases })
+
+        const output = purchases.map((purchases) => {
+            return {
+                isbn: purchases.isbn.join(', '),
+                type: purchases.type,
+                reader_card_num: purchases.reader_card_num,
+                spent_balance: purchases.spent_balance,
+                payment_method: purchases.payment_method,
+                subtotal: purchases.subtotal,
+                vat: purchases.vat,
+                total: purchases.total,
+                employee_num: purchases.employee_num,
+                created_at: handleDate(purchases.created_at),
+            }
+        })
+
+        return res.status(200).json({ purchases: output })
     } catch (e) {
         next(e)
     }
+}
+
+const handleDate = (date) => {
+    const dateObj = new Date(date)
+    return (
+        dateObj.getDate().toString() +
+        '/' +
+        dateObj.getMonth().toString() +
+        '/' +
+        dateObj.getFullYear().toString()
+    )
 }
 
 /**
