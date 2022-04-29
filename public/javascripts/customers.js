@@ -1,6 +1,18 @@
 const onCustomers = () => {
     document.getElementById('title').innerText = 'Customers'
     document.getElementById('action').innerText = 'Create customer'
+    document.getElementById('action').onclick = function() {
+        console.log('clicked')
+
+
+        const element = document.getElementById('customer-form')
+
+        if (element.classList.contains('hidden')) {
+            element.classList.remove('hidden')
+        } else {
+            element.classList.add('hidden')
+        }
+    }
 
     fetch('http://localhost:3000/api/customers')
         .then(res => res.json())
