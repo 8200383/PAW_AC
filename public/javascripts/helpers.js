@@ -142,32 +142,4 @@ const thStyles = classNames(
     'uppercase tracking-wider'
 )
 
-const remodelPurchasesTable = (purchases) => {
-    const container = document.getElementById('container')
-    const tbody = container.firstChild.firstChild.nextSibling
-    const tableRows = tbody.childNodes
-    var purchaseCounter = 0
 
-    tableRows.forEach((tr) => {
-        var isbn = purchases[purchaseCounter++].isbn.split(',')
-        var newTable = document.createElement('table')
-
-        isbn.forEach((isbn) => {
-            var newTr = document.createElement('tr')
-            var isbnTd = document.createElement('td')
-            var quantityTd = document.createElement('td')
-            var isbnDiv = tr.firstChild.firstChild.cloneNode(true)
-            var quantityDiv = tr.firstChild.firstChild.cloneNode(true)
-
-            newTable.appendChild(newTr)
-            newTr.appendChild(isbnTd)
-            newTr.appendChild(quantityTd)
-            isbnTd.appendChild(isbnDiv)
-            quantityTd.appendChild(quantityDiv)
-            tr.firstChild.appendChild(newTable)
-            isbnDiv.innerHTML = isbn
-            quantityDiv.innerHTML = 2 //brute force
-        })
-        tr.firstChild.firstChild.remove()
-    })
-}
