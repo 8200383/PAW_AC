@@ -1,6 +1,7 @@
 const onBooks = () => {
     document.getElementById('title').innerText = 'Books'
     document.getElementById('action').innerText = 'Create book'
+    document.getElementById('slide-over-title').innerText = 'Create book'
 
     fetch('http://localhost:3000/api/books')
         .then(res => res.json())

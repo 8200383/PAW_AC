@@ -116,8 +116,10 @@ function hideMobileSidebar() {
     hideDropdowns('mobileLock')
 }
 
-function hideProfileMobile() {
-    hideDropdowns('mobileProfile')
+function hideFormSidebar() {
+    hideDropdowns('formSidebar')
+    hideDropdowns('formShadow')
+    hideDropdowns('formLock')
 }
 
 const columnStyles = classNames(
@@ -142,4 +144,5 @@ const thStyles = classNames(
     'uppercase tracking-wider'
 )
 
-
+document.getElementById('FormButtonClose').addEventListener('click', hideFormSidebar)
+document.getElementById('action').addEventListener('click', hideFormSidebar)

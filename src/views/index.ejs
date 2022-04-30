@@ -2,7 +2,8 @@
 <html lang='en'>
 <%- include('head'); %>
 <body>
-<div class="h-screen flex overflow-hidden bg-white">
+<%- include('auth') %>
+<div id='dashboard' class="hidden h-screen flex overflow-hidden bg-white">
     <%- include('sidebar', { navigation }); %>
     
     <!-- Main column -->
@@ -26,6 +27,9 @@
             <%- include('purchaseForm'); %>
         </main>
     </div>
+
+    <%- include('slideover') %>
 </div>
 </body>
+<%- include('scripts'); %>
 </html>
