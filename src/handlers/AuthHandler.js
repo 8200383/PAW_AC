@@ -5,7 +5,7 @@ const security = require('../configs/security.json')
 const { generateToken } = require('../helpers')
 
 /**
- *
+ * Auth
  * @param {Request} req
  * @param {Response} res
  * @param {Function} next
@@ -16,7 +16,7 @@ const auth = async (req, res, next) => {
         .then((result) => {
             return { hasAccount: result !== null, account: result }
         })
-        .catch((e) => {
+        .catch(() => {
             return { hasAccount: false, account: null }
         })
 
@@ -61,6 +61,20 @@ const auth = async (req, res, next) => {
     }
 }
 
+const getAccountInfo = async (req, res, next) => {
+    try {
+        const account = await Account.findOne({ email: req.params.email })
+
+        return res.json({ email: account.email, role: account.role })
+    } catch (e) {
+        const error = new Error(e.message)
+        error.status = 400
+
+        return next(error)
+    }
+}
+
 module.exports = {
     auth,
+    getAccountInfo,
 }

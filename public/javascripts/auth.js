@@ -4,7 +4,7 @@ const onAuth = async () => {
         'password': document.getElementById('password').value,
     }
 
-    const rawResponse = await fetch('http://localhost:3000/auth', {
+    await fetch('http://localhost:3000/api/auth', {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -23,13 +23,38 @@ const onAuth = async () => {
 
                 document.getElementById('error').classList.add('hidden')
                 localStorage.setItem('token', res['token'])
+                localStorage.setItem('email', account.email)
+
+                retrieveAccountInfo(account.email)
                 showHideAuth()
             },
         )
 }
 
+const retrieveAccountInfo = async (email) => {
+    await fetch(`http://localhost:3000/api/account/${email}`, {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+    }).then((raw) => raw.json())
+        .then((res) => {
+            document.getElementById('email-account').innerHTML = res['email']
+            document.getElementById('role').innerHTML = res['role']
+        })
+}
+
+const logout = () => {
+    localStorage.clear()
+    location.reload()
+}
+
+const isLoggedIn = () => {
+    return localStorage.getItem('token') !== null
+}
+
 const showHideAuth = () => {
-    if (localStorage.getItem('token') == null) {
+    if (!isLoggedIn()) {
         document.getElementById('dashboard').classList.add('hidden')
         document.getElementById('auth').classList.remove('hidden')
     } else {
@@ -40,6 +65,10 @@ const showHideAuth = () => {
 
 const onLoad = () => {
     document.getElementById('auth-btn').addEventListener('click', onAuth)
+
+    if (isLoggedIn()) {
+        retrieveAccountInfo(localStorage.getItem('email'))
+    }
 
     showHideAuth()
 }
