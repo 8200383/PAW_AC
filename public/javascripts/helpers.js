@@ -126,12 +126,12 @@ const columnStyles = classNames(
     'px-6 py-3',
     'border-b border-gray-200 bg-gray-50',
     'text-left text-xs font-medium text-gray-500',
-    'uppercase tracking-wider'
+    'uppercase tracking-wider',
 )
 
 const rowStyles = classNames(
     'px-6 py-3',
-    'whitespace-nowrap text-sm text-gray-800'
+    'whitespace-nowrap text-sm text-gray-800',
 )
 
 const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
@@ -141,7 +141,7 @@ const trStyles = classNames('border-t border-gray-200')
 const thStyles = classNames(
     'px-6 py-3 border-b border-gray-200 bg-gray-50',
     'text-left text-xs font-medium text-gray-500',
-    'uppercase tracking-wider'
+    'uppercase tracking-wider',
 )
 
 document.getElementById('FormButtonClose').addEventListener('click', hideFormSidebar)

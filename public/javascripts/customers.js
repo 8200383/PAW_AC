@@ -36,3 +36,5 @@ const onCustomers = () => {
     loadCustomers()
     loadCustomersForm()
 }
+
+document.addEventListener('DOMContentLoaded', onCustomers) // Just here to be the first to be loaded
