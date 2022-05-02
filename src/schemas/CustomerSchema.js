@@ -15,7 +15,6 @@ const customerSchema = new Schema({
     gender: { type: String, enum: Gender },
     country: String,
     postal_code: { type: String, validate: PostalCodeValidator },
-    location: String,
     billing_address: String,
     residence_address: String,
     nif: { type: String, validate: NIFValidator },
