@@ -218,9 +218,21 @@ const rowStyles = classNames(
     'whitespace-nowrap text-sm text-gray-800',
 )
 
-const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
+const columnActionsStyles = classNames(
+    'flex space-x-0.5 justify-end px-4',
+)
 
-const trStyles = classNames('border-t border-gray-200')
+const rowActionsStyles = classNames(
+    'py-3 px-1 whitespace-nowrap text-sm font-medium',
+)
+
+const tbodyStyles = classNames(
+    'bg-white divide-y divide-gray-100',
+)
+
+const trStyles = classNames(
+    'border-t border-gray-200',
+)
 
 const thStyles = classNames(
     'px-6 py-3 border-b border-gray-200 bg-gray-50',
@@ -240,14 +252,42 @@ const createColumns = (columns) => {
     columns.forEach((column) => {
         const th = document.createElement('th')
         th.className = thStyles
-
-        const node = document.createTextNode(column)
-        th.appendChild(node)
+        th.innerHTML = column
 
         tr.appendChild(th)
     })
 
+    // Create Actions Column
+    const th = document.createElement('th')
+    th.className = classNames(thStyles, 'flex justify-end')
+    th.innerHTML = 'Actions'
+    tr.appendChild(th)
+
     return tr
+}
+
+/**
+ * Append Action Buttons to a Row
+ * @return {HTMLTableCellElement}
+ */
+const appendActionButtons = () => {
+    const td = document.createElement('td')
+    td.className = columnActionsStyles
+
+    const buttons = [
+        { label: 'Edit', color: 'text-yellow-600' },
+        { label: 'Delete', color: 'text-red-600' },
+    ]
+
+    buttons.forEach((button) => {
+        const div = document.createElement('button')
+        div.className = classNames(rowActionsStyles, button.color)
+        div.innerHTML = button.label
+
+        td.appendChild(div)
+    })
+
+    return td
 }
 
 /**
@@ -260,16 +300,13 @@ const createRow = (row) => {
 
     Object.values(row).forEach((field) => {
         const td = document.createElement('td')
-        td.className = 'pr-6'
+        td.className = rowStyles
+        td.innerHTML = field
 
-        const div = document.createElement('div')
-        div.className = rowStyles
-
-        const node = document.createTextNode(field)
-        div.appendChild(node)
-        td.appendChild(div)
         tr.appendChild(td)
     })
+
+    tr.appendChild(appendActionButtons())
 
     return tr
 }
