@@ -12,15 +12,16 @@ const onDocumentLoad = async () => {
     handleAuthClickEvents()
 
     if (isLoggedIn()) {
+        await retrieveAccountInfo(localStorage.getItem('email')).then(() => {
+            console.log('[!] Account Information Loaded')
+        })
+
         await loadModule('customers').then(async () => {
             console.log('[!] Customers Module Loaded')
 
-            await retrieveAccountInfo(localStorage.getItem('email')).then(() => {
-                console.log('[!] Account Information Loaded')
-            })
-
             hideAuthPage()
         })
+
     } else {
         showAuthPage()
     }
@@ -169,9 +170,9 @@ const handleSlideOverClickEvents = () => {
  * @param {Array<{label: string, id: string, required: boolean}>} fields
  */
 const createForm = (fields) => {
-    const container = document.getElementById('form-container')
+    const dummyContainer = document.createElement('div')
 
-    fields.forEach((field) => {
+    fields.map((field) => {
         const div = document.createElement('div')
         div.className = 'mb-4'
 
@@ -198,8 +199,16 @@ const createForm = (fields) => {
         div.appendChild(flex)
         div.appendChild(input)
 
-        container.appendChild(div)
+        dummyContainer.appendChild(div)
     })
+
+    const container = document.getElementById('form-container')
+
+    if (container.hasChildNodes()) {
+        container.removeChild(container.lastChild)
+    }
+
+    container.appendChild(dummyContainer)
 }
 
 /* ---
@@ -400,10 +409,10 @@ class CustomersModule {
         initModule('Customers', 'New Customer', this.onFormSubmission)
 
         this.fetchCustomers()
-        this.onModuleLoad()
+        this.renderForm()
     }
 
-    onModuleLoad = () => {
+    renderForm = () => {
         const fields = [
             { label: 'Reader Card Number', id: 'reader_car_num', required: true },
             { label: 'Name', id: 'name', required: true },
@@ -439,10 +448,26 @@ class CustomersModule {
 class EmployeesModule {
     constructor() {
         initModule('Employees', 'New Employee', this.onFormSubmission)
-        this.onModuleLoad()
+        this.renderForm()
+        this.fetchEmployees()
     }
 
-    onModuleLoad = () => {
+    renderForm = () => {
+        const fields = [
+            { label: 'Employee No', id: 'employee_no', required: true },
+            { label: 'Name', id: 'name', required: true },
+            { label: 'NIF', id: 'nif', required: false },
+            { label: 'Phone', id: 'cell_phone', required: false },
+            { label: 'Gender', id: 'gender', required: false },
+            { label: 'Nationality', id: 'nationality', required: false },
+            { label: 'Postal Code', id: 'postal_code', required: false },
+            { label: 'Address', id: 'address', required: false },
+        ]
+
+        createForm(fields)
+    }
+
+    fetchEmployees = () => {
         fetch(API_URL + '/employees')
             .then(res => res.json())
             .then(raw => raw['employees'])
@@ -467,13 +492,25 @@ class PurchasesModule {
     }
 
     onFormSubmission = () => {
+        throw new Error('[!] Purchases Module not implemented')
     }
 }
 
 class BooksModule {
     constructor() {
         initModule('Books', 'New Book', this.onFormSubmission)
+        this.renderForm()
         this.onModuleLoad()
+    }
+
+    renderForm = () => {
+        const fields = [
+            { label: 'ISBN', id: 'isbn', required: true },
+            { label: 'Stock New', id: 'stock_new', required: true },
+            { label: 'Stock Second Hand', id: 'stock_used', required: true },
+        ]
+
+        createForm(fields)
     }
 
     onModuleLoad = () => {
