@@ -170,11 +170,13 @@ const handleSlideOverClickEvents = () => {
  * @param {Array<{label: string, id: string, required: boolean}>} fields
  */
 const createForm = (fields) => {
+    const container = document.getElementById('form-container')
+
     const dummyContainer = document.createElement('div')
 
     fields.map((field) => {
-        const div = document.createElement('div')
-        div.className = 'mb-4'
+        const section = document.createElement('section')
+        section.className = 'mb-4'
 
         const label = document.createElement('label')
         label.htmlFor = field.label.toLowerCase()
@@ -196,13 +198,11 @@ const createForm = (fields) => {
         input.className = inputStyles
         input.required = field.required
 
-        div.appendChild(flex)
-        div.appendChild(input)
+        section.appendChild(flex)
+        section.appendChild(input)
 
-        dummyContainer.appendChild(div)
+        dummyContainer.appendChild(section)
     })
-
-    const container = document.getElementById('form-container')
 
     if (container.hasChildNodes()) {
         container.removeChild(container.lastChild)
@@ -494,9 +494,6 @@ class PurchasesModule {
             .then((response) => response.text())
             .then((text) => {
                 document.getElementById('form-container').innerHTML = text
-
-                const btn = document.getElementById('form-action')
-                btn.addEventListener('click', this.onFormSubmission)
             })
     }
 

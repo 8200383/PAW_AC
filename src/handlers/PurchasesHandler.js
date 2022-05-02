@@ -35,7 +35,8 @@ const createPurchase = async (req, res, next) => {
  * @param {Object} schema
  * @returns {Promise<void>}
  */
-const createWebPurchase = async (schema) => {}
+const createWebPurchase = async (schema) => {
+}
 
 /**
  * Add In Store type Purchase
@@ -181,7 +182,7 @@ const getAllPurchases = async (req, res, next) => {
 
         const output = purchases.map((purchases) => {
             return {
-                isbn: purchases.isbn.join(', '),
+                // FIXME isbn: purchases.isbn,
                 type: purchases.type,
                 reader_card_num: purchases.reader_card_num,
                 spent_balance: purchases.spent_balance,
