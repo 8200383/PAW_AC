@@ -15,10 +15,21 @@ const purchaseSchema = new Schema({
         type: Number,
         required: true,
     },
-    isbn: {
-        type: [String],
-        required: true,
-    },
+    products: [{
+        isbn: {
+            type: String,
+            required: true,
+        },
+        type: {
+            type: String,
+            enum: ['Used', 'New'],
+            required: true,
+        },
+        qte: {
+            type: Number,
+            required: true,
+        },
+    }],
     spent_balance: {
         type: Number,
         min: 0,
