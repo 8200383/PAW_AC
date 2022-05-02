@@ -301,10 +301,10 @@ const appendActionButtons = () => {
 
 /**
  * Create row from an array
- * @param {Object} row
+ * @param {{}} row
  * @return {HTMLElementTagNameMap[string]}
  */
-const createRow = (row) => {
+const createStandardRow = (row) => {
     const tr = document.createElement('tr')
 
     Object.values(row).forEach((field) => {
@@ -323,9 +323,10 @@ const createRow = (row) => {
 /**
  * Create a table
  * @param {Array<string>} columns
- * @param {Array<Object>}rows
+ * @param {Array<Object>} rows
+ * @param {function} appendRowFunction
  */
-const createTable = (columns, rows) => {
+const createTable = (columns, rows, appendRowFunction) => {
     // Create Table
     const table = document.createElement('table')
     table.className = 'min-w-full'
@@ -336,7 +337,7 @@ const createTable = (columns, rows) => {
 
     // Append Cells
     thead.appendChild(createColumns(columns))
-    rows.forEach((row) => tbody.appendChild(createRow(row)))
+    rows.forEach((row) => tbody.appendChild(appendRowFunction(row)))
 
     table.appendChild(thead)
     table.appendChild(tbody)
@@ -436,7 +437,7 @@ class CustomersModule {
             .then(raw => raw['customers'])
             .then(customers => {
                 const columns = extractColumns(customers[0])
-                createTable(columns, customers)
+                createTable(columns, customers, createStandardRow)
             })
     }
 
@@ -473,7 +474,7 @@ class EmployeesModule {
             .then(raw => raw['employees'])
             .then((employees) => {
                 const columns = extractColumns(employees[0])
-                createTable(columns, employees)
+                createTable(columns, employees, createStandardRow)
             })
     }
 
@@ -484,11 +485,29 @@ class EmployeesModule {
 class PurchasesModule {
     constructor() {
         initModule('Purchases', 'New Purchase', this.onFormSubmission)
-        this.onModuleLoad()
+        this.renderForm()
+        this.fetchPurchases()
     }
 
-    onModuleLoad = () => {
-        throw new Error('[!] Purchases Module not implemented')
+    renderForm = () => {
+        fetch('http://localhost:3000/forms/purchases.ejs')
+            .then((response) => response.text())
+            .then((text) => {
+                document.getElementById('form-container').innerHTML = text
+
+                const btn = document.getElementById('form-action')
+                btn.addEventListener('click', this.onFormSubmission)
+            })
+    }
+
+    fetchPurchases = () => {
+        fetch(API_URL + '/purchases')
+            .then((res) => res.json())
+            .then((raw) => raw['purchases'])
+            .then((purchases) => {
+                const columns = extractColumns(purchases[0])
+                createTable(columns, purchases, createStandardRow)
+            })
     }
 
     onFormSubmission = () => {
@@ -519,7 +538,7 @@ class BooksModule {
             .then(raw => raw['books'])
             .then((books) => {
                 const columns = extractColumns(books[0])
-                createTable(columns, books)
+                createTable(columns, books, createStandardRow)
             })
     }
 

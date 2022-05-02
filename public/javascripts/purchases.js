@@ -1,4 +1,4 @@
-const loadPurchases = () => {
+/*const loadPurchases = () => {
     document.getElementById('title').innerText = 'Purchases'
     document.getElementById('action').innerText = 'Create purchase'
     document.getElementById('slide-over-title').innerText = 'Create purchase'
@@ -16,8 +16,8 @@ const loadPurchases = () => {
         .catch((err) => {
             console.log(err)
         })
-}
-
+} */
+/*
 const remodelPurchasesTable = (purchases) => {
     const container = document.getElementById('container')
     const tbody = container.firstChild.firstChild.nextSibling
@@ -46,8 +46,8 @@ const remodelPurchasesTable = (purchases) => {
         })
         tr.firstChild.firstChild.remove()
     })
-}
-
+} */
+/*
 const loadPurchasesForm = () => {
     fetch('http://localhost:3000/forms/purchases.ejs')
         .then((response) => response.text())
@@ -66,14 +66,4 @@ const onLoadPurchasesForm = (text) => {
 const onPurchaseSave = () => {
     console.log('saved')
 }
-
-const onPurchases = () => {
-    document.getElementById('title').innerText = 'Purchases'
-    document.getElementById('action').innerText = 'Create purchase'
-    document.getElementById('slide-over-title').innerText = 'Create purchase'
-
-    loadPurchases()
-    loadPurchasesForm()
-}
-
-document.addEventListener('DOMContentLoaded', onPurchases)
+ */
