@@ -119,6 +119,19 @@ const classNames = (...strings) => {
     SlideOver - Helpers functions to handle slide overs
 --- */
 
+const labelStyles = classNames(
+    'text-sm font-medium text-gray-700',
+)
+
+const requiredStyles = classNames(
+    'text-xs text-red-600 font-semibold',
+)
+
+const inputStyles = classNames(
+    'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
+    'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
+)
+
 /**
  * Show / Hide a component in DOM
  * @param {string} id
@@ -148,6 +161,45 @@ const showHideSlideOver = () => {
 const handleSlideOverClickEvents = () => {
     document.getElementById('form-btn-close').addEventListener('click', showHideSlideOver)
     document.getElementById('module-btn-action').addEventListener('click', showHideSlideOver)
+}
+
+/**
+ * Create form in DOM
+ *
+ * @param {Array<{label: string, id: string, required: boolean}>} fields
+ */
+const createForm = (fields) => {
+    const container = document.getElementById('form-container')
+
+    fields.forEach((field) => {
+        const div = document.createElement('div')
+        div.className = 'mb-4'
+
+        const label = document.createElement('label')
+        label.htmlFor = field.label.toLowerCase()
+        label.className = labelStyles
+        label.innerHTML = field.label
+
+        const required = document.createElement('span')
+        required.className = requiredStyles
+        required.innerHTML = 'Required'
+
+        const flex = document.createElement('div')
+        flex.className = 'flex justify-between'
+        flex.appendChild(label)
+        field.required ? flex.appendChild(required) : null
+
+        const input = document.createElement('input')
+        input.type = 'text'
+        input.id = field.id
+        input.className = inputStyles
+        input.required = field.required
+
+        div.appendChild(flex)
+        div.appendChild(input)
+
+        container.appendChild(div)
+    })
 }
 
 /* ---
@@ -309,10 +361,30 @@ const API_URL = 'http://localhost:3000/api'
 class CustomersModule {
     constructor() {
         initModule('Customers', 'New Customer', this.onFormSubmission)
+
+        this.fetchCustomers()
         this.onModuleLoad()
     }
 
     onModuleLoad = () => {
+        const fields = [
+            { label: 'Reader Card Number', id: 'reader_car_num', required: true },
+            { label: 'Name', id: 'name', required: true },
+            { label: 'Phone', id: 'phone', required: false },
+            { label: 'Birth Date', id: 'birth_date', required: false },
+            { label: 'Gender', id: 'gender', required: false },
+            { label: 'Country', id: 'country', required: false },
+            { label: 'Postal Code', id: 'postal_code', required: false },
+            { label: 'Billing Address', id: 'billing_address', required: false },
+            { label: 'Residence Address', id: 'residence_address', required: false },
+            { label: 'NIF', id: 'nif', required: false },
+            { label: 'Profession', id: 'profession', required: false },
+        ]
+
+        createForm(fields)
+    }
+
+    fetchCustomers = () => {
         fetch(API_URL + '/customers')
             .then(res => res.json())
             .then(raw => raw['customers'])
