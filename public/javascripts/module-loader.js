@@ -249,105 +249,127 @@ const thStyles = classNames(
     'uppercase tracking-wider',
 )
 
-/**
- * Create columns from an array
- * @param {Array<string>} columns
- * @return {HTMLElementTagNameMap[string]}
- */
-const createColumns = (columns) => {
-    const tr = document.createElement('tr')
-    tr.className = trStyles
+const Table = () => {
 
-    columns.forEach((column) => {
-        const th = document.createElement('th')
-        th.className = thStyles
-        th.innerHTML = column
-
-        tr.appendChild(th)
-    })
-
-    // Create Actions Column
-    const th = document.createElement('th')
-    th.className = classNames(thStyles, 'flex justify-end')
-    th.innerHTML = 'Actions'
-    tr.appendChild(th)
-
-    return tr
-}
-
-/**
- * Append Action Buttons to a Row
- * @return {HTMLTableCellElement}
- */
-const appendActionButtons = () => {
-    const td = document.createElement('td')
-    td.className = columnActionsStyles
-
-    const buttons = [
-        { label: 'Edit', color: 'text-yellow-600' },
-        { label: 'Delete', color: 'text-red-600' },
-    ]
-
-    buttons.forEach((button) => {
-        const div = document.createElement('button')
-        div.className = classNames(rowActionsStyles, button.color)
-        div.innerHTML = button.label
-
-        td.appendChild(div)
-    })
-
-    return td
-}
-
-/**
- * Create row from an array
- * @param {{}} row
- * @return {HTMLElementTagNameMap[string]}
- */
-const createStandardRow = (row) => {
-    const tr = document.createElement('tr')
-
-    Object.values(row).forEach((field) => {
+    /**
+     * Add actions to the table
+     * @param {{label: string, color: string, cb: function}[]} actions
+     * @return {HTMLTableCellElement}
+     */
+    const addActions = (actions) => {
         const td = document.createElement('td')
-        td.className = rowStyles
-        td.innerHTML = field
+        td.className = columnActionsStyles
 
-        tr.appendChild(td)
-    })
+        actions.forEach((action) => {
+            const div = document.createElement('button')
+            div.className = classNames(rowActionsStyles, action.color)
+            div.innerHTML = action.label
 
-    tr.appendChild(appendActionButtons())
+            td.appendChild(div)
+        })
 
-    return tr
-}
-
-/**
- * Create a table
- * @param {Array<string>} columns
- * @param {Array<Object>} rows
- * @param {function} appendRowFunction
- */
-const createTable = (columns, rows, appendRowFunction) => {
-    // Create Table
-    const table = document.createElement('table')
-    table.className = 'min-w-full'
-
-    const thead = document.createElement('thead')
-    const tbody = document.createElement('tbody')
-    tbody.className = tbodyStyles
-
-    // Append Cells
-    thead.appendChild(createColumns(columns))
-    rows.forEach((row) => tbody.appendChild(appendRowFunction(row)))
-
-    table.appendChild(thead)
-    table.appendChild(tbody)
-
-    const container = document.getElementById('container')
-    if (container.hasChildNodes()) {
-        container.removeChild(container.lastChild)
+        return td
     }
 
-    container.appendChild(table)
+    /**
+     * Add columns to the table
+     * @param {string[]} columns
+     * @return {HTMLTableRowElement}
+     */
+    const addColumns = (columns) => {
+        const tr = document.createElement('tr')
+        tr.className = trStyles
+
+        columns.forEach((column) => {
+            const th = document.createElement('th')
+            th.className = thStyles
+            th.innerHTML = column
+
+            tr.appendChild(th)
+        })
+
+        // Create Actions Column
+        const th = document.createElement('th')
+        th.className = classNames(thStyles, 'flex justify-end')
+        th.innerHTML = 'Actions'
+        tr.appendChild(th)
+
+        return tr
+    }
+
+    /**
+     * Add rows to the table
+     * @param {{}[]} rows
+     * @return {HTMLTableRowElement[]}
+     */
+    const addRows = (rows) => {
+        return rows.map((row) => {
+            const tr = document.createElement('tr')
+
+            Object.values(row).forEach((field) => {
+                const td = document.createElement('td')
+                td.className = rowStyles
+                td.innerHTML = field
+
+                tr.appendChild(td)
+            })
+
+            return tr
+        })
+    }
+
+    /**
+     * Renders a table with custom callback functions
+     * @param {HTMLTableRowElement} columnsCallback
+     * @param {HTMLTableRowElement[]} rowsCallback
+     * @param {{label: string, color: string, cb: function}[]} actions
+     */
+    const customRender = (columnsCallback, rowsCallback, actions) => {
+        const thead = document.createElement('thead')
+        const tbody = document.createElement('tbody')
+        tbody.className = tbodyStyles
+
+        thead.appendChild(columnsCallback)
+
+        rowsCallback.map((row) => {
+            row.appendChild(addActions(actions))
+            return row
+        }).forEach((row) => {
+            tbody.appendChild(row)
+        })
+
+
+        const table = document.createElement('table')
+        table.className = 'min-w-full'
+        table.appendChild(thead)
+        table.appendChild(tbody)
+
+        const container = document.getElementById('container')
+        if (container.hasChildNodes()) {
+            container.removeChild(container.lastChild)
+        }
+
+        container.appendChild(table)
+    }
+
+    /**
+     * Renders the table
+     * @param {string[]} columns
+     * @param {Object[]} rows
+     * @param {{label: string, color: string, cb: function}[]} actions
+     */
+    const render = (columns, rows, actions) => {
+        return customRender(
+            addColumns(columns),
+            addRows(rows),
+            actions,
+        )
+    }
+
+    return {
+        customRender,
+        render,
+    }
 }
 
 /**
@@ -432,12 +454,18 @@ class CustomersModule {
     }
 
     fetchCustomers = () => {
+        const actions = [
+            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
+            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
+        ]
+
         fetch(API_URL + '/customers')
             .then(res => res.json())
             .then(raw => raw['customers'])
-            .then(customers => {
-                const columns = extractColumns(customers[0])
-                createTable(columns, customers, createStandardRow)
+            .then(rows => {
+                const columns = extractColumns(rows[0])
+                Table().render(columns, rows, actions)
             })
     }
 
@@ -469,12 +497,18 @@ class EmployeesModule {
     }
 
     fetchEmployees = () => {
+        const actions = [
+            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
+            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
+        ]
+
         fetch(API_URL + '/employees')
             .then(res => res.json())
             .then(raw => raw['employees'])
-            .then((employees) => {
-                const columns = extractColumns(employees[0])
-                createTable(columns, employees, createStandardRow)
+            .then((rows) => {
+                const columns = extractColumns(rows[0])
+                Table().render(columns, rows, actions)
             })
     }
 
@@ -498,12 +532,18 @@ class PurchasesModule {
     }
 
     fetchPurchases = () => {
+        const actions = [
+            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
+            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
+        ]
+
         fetch(API_URL + '/purchases')
             .then((res) => res.json())
             .then((raw) => raw['purchases'])
-            .then((purchases) => {
-                const columns = extractColumns(purchases[0])
-                createTable(columns, purchases, createStandardRow)
+            .then((rows) => {
+                const columns = extractColumns(rows[0])
+                Table().render(columns, rows, actions)
             })
     }
 
@@ -530,12 +570,18 @@ class BooksModule {
     }
 
     onModuleLoad = () => {
+        const actions = [
+            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
+            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
+        ]
+
         fetch(API_URL + '/books')
             .then(res => res.json())
             .then(raw => raw['books'])
-            .then((books) => {
-                const columns = extractColumns(books[0])
-                createTable(columns, books, createStandardRow)
+            .then((rows) => {
+                const columns = extractColumns(rows[0])
+                Table().render(columns, rows, actions)
             })
     }
 
