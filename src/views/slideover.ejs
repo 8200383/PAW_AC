@@ -1,45 +1,13 @@
-<!-- This example requires Tailwind CSS v2.0+ -->
-<div class="hidden fixed inset-0 overflow-hidden" aria-labelledby="slide-over-title" role="dialog"
-     aria-modal="true" id='formLock'>
+<div class="hidden fixed inset-0 overflow-hidden" role="dialog" aria-modal="true" id='form-lock'>
     <div class="absolute inset-0 overflow-hidden">
-        <!--
-          Background overlay, show/hide based on slide-over state.
-
-          Entering: "ease-in-out duration-500"
-            From: "opacity-0"
-            To: "opacity-100"
-          Leaving: "ease-in-out duration-500"
-            From: "opacity-100"
-            To: "opacity-0"
-        -->
         <div class="hidden absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
-             id='formShadow'></div>
+             id='form-shadow'></div>
         <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-            <!--
-              Slide-over panel, show/hide based on slide-over state.
-
-              Entering: "transform transition ease-in-out duration-500 sm:duration-700"
-                From: "translate-x-full"
-                To: "translate-x-0"
-              Leaving: "transform transition ease-in-out duration-500 sm:duration-700"
-                From: "translate-x-0"
-                To: "translate-x-full"
-            -->
             <div class="pointer-events-auto relative w-screen max-w-md">
-                <!--
-                  Close button, show/hide based on slide-over state.
-
-                  Entering: "ease-in-out duration-500"
-                    From: "opacity-0"
-                    To: "opacity-100"
-                  Leaving: "ease-in-out duration-500"
-                    From: "opacity-100"
-                    To: "opacity-0"
-                -->
                 <div class="absolute top-0 left-0 -ml-8 flex pt-4 pr-2 sm:-ml-10 sm:pr-4">
                     <button type="button"
                             class="rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
-                            id='FormButtonClose'>
+                            id='form-btn-close'>
                         <span class="sr-only">Close panel</span>
                         <!-- Heroicon name: outline/x -->
                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -50,11 +18,17 @@
                     </button>
                 </div>
 
-                <div class="hidden flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl" id='formSidebar'>
+                <div class="hidden flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl" id='form-slideover'>
                     <div class="px-4 sm:px-6">
-                        <h2 class="text-lg font-medium text-gray-900" id="slide-over-title"></h2>
+                        <h2 class="text-lg font-medium text-gray-900" id="slideover-label"></h2>
                     </div>
                     <div id='form-container' class="relative mt-6 flex-1 px-4 sm:px-6">
+                        <div class="mt-4">
+                            <button id='form-submit-btn' type="button"
+                                    class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                                Save
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
