@@ -5,6 +5,27 @@ const isOnlinePurchase = (type) => {
     return type === 'Web'
 }
 
+const arrayMin = (books) => {
+    return books.length > 0
+}
+
+const bookSchema = new Schema({
+    isbn: {
+        type: Schema.Types.ObjectId,
+        ref: 'Book.isbn',
+        required: true,
+    },
+    type: {
+        type: String,
+        enum: ['Used', 'New'],
+        required: true,
+    },
+    qnt: {
+        type: Number,
+        required: true,
+    },
+})
+
 const purchaseSchema = new Schema({
     type: {
         type: String,
@@ -15,21 +36,15 @@ const purchaseSchema = new Schema({
         type: Number,
         required: true,
     },
-    products: [{
-        isbn: {
-            type: String,
-            required: true,
-        },
-        type: {
-            type: String,
-            enum: ['Used', 'New'],
-            required: true,
-        },
-        qte: {
-            type: Number,
-            required: true,
-        },
-    }],
+    books: {
+        type: [
+            {
+                type: bookSchema,
+                required: true,
+            },
+        ],
+        validate: [arrayMin, 'The purchase should have at least one book'],
+    },
     spent_balance: {
         type: Number,
         min: 0,

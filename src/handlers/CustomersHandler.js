@@ -16,7 +16,10 @@ const createCustomer = async (req, res, next) => {
             customer: customer,
         })
     } catch (e) {
-        next(e)
+        const error = new Error(e.message)
+        error.status = 400
+
+        return next(error)
     }
 }
 
@@ -35,9 +38,9 @@ const getAllCustomers = async (req, res, next) => {
             return {
                 reader_card_num: customer.reader_card_num,
                 name: customer.name,
-                birth_date: customer.birth_date ?? " ",
-                cell_phone: customer.cell_phone ?? " ",
-                country: customer.country ?? " ",
+                birth_date: customer.birth_date ?? ' ',
+                cell_phone: customer.cell_phone ?? ' ',
+                country: customer.country ?? ' ',
             }
         })
 

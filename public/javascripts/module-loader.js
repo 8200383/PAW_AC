@@ -382,6 +382,35 @@ const extractColumns = (firstRow) => {
 }
 
 /* ---
+    EmptyState - Helpers functions to handle empty state
+--- */
+
+const EmptyState = () => {
+
+    const render = (msg) => {
+        const p = document.createElement('p')
+        p.className = 'text-xl font-medium text-gray-600'
+        p.innerHTML = msg
+
+        const div = document.createElement('div')
+        div.className = 'px-4 pb-4 sm:px-6 lg:px-8'
+
+        div.appendChild(p)
+
+        const container = document.getElementById('container')
+        if (container.hasChildNodes()) {
+            container.removeChild(container.lastChild)
+        }
+
+        container.appendChild(div)
+    }
+
+    return {
+        render,
+    }
+}
+
+/* ---
     Logic to load a module
 --- */
 
@@ -477,29 +506,34 @@ const Customers = () => {
         createForm(fields)
     }
 
-    const fetchCustomers = () => {
-        const actions = [
-            {
-                label: 'View',
-                color: 'text-indigo-600',
-                cb: (event) => onView(event),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: (event) => onEdit(event),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: (event) => onDelete(event),
-            },
-        ]
+    const actions = [
+        {
+            label: 'View',
+            color: 'text-indigo-600',
+            cb: (event) => onView(event),
+        },
+        {
+            label: 'Edit',
+            color: 'text-yellow-600',
+            cb: (event) => onEdit(event),
+        },
+        {
+            label: 'Delete',
+            color: 'text-red-600',
+            cb: (event) => onDelete(event),
+        },
+    ]
 
+    const fetchCustomers = () => {
         fetch(API_URL + '/customers')
             .then((res) => res.json())
             .then((raw) => raw['customers'])
             .then((rows) => {
+                if (rows.length === 0) {
+                    EmptyState().render('There is no customers yet!')
+                    return
+                }
+
                 const columns = extractColumns(rows[0])
                 Table().render(columns, rows, actions)
             })
@@ -561,7 +595,13 @@ const Customers = () => {
     }
 
     const onDelete = (event) => {
-        console.log(event.target.id)
+        const id = event.target.id
+
+        fetch(API_URL + '/customer/' + id, {
+            method: 'DELETE',
+        }).then(() => {
+            event.target.parentElement.parentElement.remove()
+        })
     }
 
     return {
@@ -592,25 +632,25 @@ const Employees = () => {
         createForm(fields)
     }
 
-    const fetchEmployees = () => {
-        const actions = [
-            {
-                label: 'View',
-                color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: () => console.log('clicked'),
-            },
-        ]
+    const actions = [
+        {
+            label: 'View',
+            color: 'text-indigo-600',
+            cb: () => console.log('clicked'),
+        },
+        {
+            label: 'Edit',
+            color: 'text-yellow-600',
+            cb: () => console.log('clicked'),
+        },
+        {
+            label: 'View',
+            color: 'text-indigo-600',
+            cb: () => console.log('clicked'),
+        },
+    ]
 
+    const fetchEmployees = () => {
         fetch(API_URL + '/employees')
             .then((res) => res.json())
             .then((raw) => raw['employees'])
