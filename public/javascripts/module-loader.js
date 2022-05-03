@@ -451,11 +451,11 @@ const Customers = () => {
         const fields = [
             {
                 label: 'Reader Card Number',
-                id: 'reader_car_num',
+                id: 'reader_card_num',
                 required: true,
             },
             { label: 'Name', id: 'name', required: true },
-            { label: 'Phone', id: 'phone', required: false },
+            { label: 'Phone', id: 'cell_phone', required: false },
             { label: 'Birth Date', id: 'birth_date', required: false },
             { label: 'Gender', id: 'gender', required: false },
             { label: 'Country', id: 'country', required: false },
@@ -505,8 +505,44 @@ const Customers = () => {
             })
     }
 
-    const onFormSubmission = () => {
+    const onFormSubmission = async () => {
         console.log('sub')
+
+        const customer = {}
+
+        const container = document.getElementById('form-container').firstElementChild.childNodes
+        container.forEach((field) => {
+            if (field.lastElementChild.value !== '') {
+                customer[field.lastElementChild.id] = field.lastElementChild.value
+            }
+        })
+
+        await fetch(API_URL + '/customers', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(customer),
+        })
+            .then((raw) => raw.json())
+            .then((res) => {
+                const error_label = document.getElementById('slideover-error')
+                if (!res['error']) {
+                    if (error_label.classList.contains('hidden') !== true) {
+                        error_label.classList.add('hidden')
+                    }
+
+                    container.forEach((field) => {
+                        field.lastElementChild.value = ''
+                    })
+
+                    showHideSlideOver()
+                } else {
+                    error_label.innerHTML = res['error']
+                    error_label.classList.remove('hidden')
+                }
+            })
     }
 
     const onView = (event) => {
