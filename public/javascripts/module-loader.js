@@ -539,17 +539,21 @@ const Customers = () => {
             })
     }
 
-    const onFormSubmission = async () => {
-        console.log('sub')
-
-        const customer = {}
+    const makeJsonObject = () => {
+        const element = {}
 
         const container = document.getElementById('form-container').firstElementChild.childNodes
         container.forEach((field) => {
             if (field.lastElementChild.value !== '') {
-                customer[field.lastElementChild.id] = field.lastElementChild.value
+                element[field.lastElementChild.id] = field.lastElementChild.value
             }
         })
+
+        return element
+    }
+
+    const onFormSubmission = async () => {
+        console.log('sub')
 
         await fetch(API_URL + '/customers', {
             method: 'POST',
@@ -557,7 +561,7 @@ const Customers = () => {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(customer),
+            body: JSON.stringify(makeJsonObject()),
         })
             .then((raw) => raw.json())
             .then((res) => {
@@ -566,10 +570,6 @@ const Customers = () => {
                     if (error_label.classList.contains('hidden') !== true) {
                         error_label.classList.add('hidden')
                     }
-
-                    container.forEach((field) => {
-                        field.lastElementChild.value = ''
-                    })
 
                     showHideSlideOver()
                 } else {
