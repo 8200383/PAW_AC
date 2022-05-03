@@ -8,7 +8,7 @@ router
     .get(PurchasesHandler.getAllPurchases)
 
 router
-    .route('/purchases/:reader_card_num')
+    .route('/api/purchases/:reader_card_num')
     .get(PurchasesHandler.getPurchaseByCostumer)
 
 module.exports = router

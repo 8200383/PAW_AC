@@ -1,6 +1,6 @@
 const { Request, Response, NextFunction } = require('express')
-const { Purchase } = require('../schemas')
-const { Customer } = require('../schemas')
+const { Purchase, Customer, Book } = require('../schemas')
+const VatRates = require('eu-vat-rates')
 
 /**
  * Create a Purchase
@@ -35,8 +35,7 @@ const createPurchase = async (req, res, next) => {
  * @param {Object} schema
  * @returns {Promise<void>}
  */
-const createWebPurchase = async (schema) => {
-}
+const createWebPurchase = async (schema) => {}
 
 /**
  * Add In Store type Purchase
@@ -52,7 +51,7 @@ const createInStorePurchase = async (schema) => {
         costumer = await findCostumer(schema.reader_card_num)
         await costumerExists(costumer)
         await spentBalanceExists(schema.reader_card_num, schema.spent_balance)
-        schema.subtotal = await calculateSubtotal(schema.isbn)
+        schema.subtotal = await calculateSubtotal(schema.books)
         schema.vat = await getVat()
         schema.total = schema.vat * schema.subtotal + schema.subtotal //apply discount and update balance
         schema.employee_num = '1' //brute force
@@ -112,17 +111,20 @@ const spentBalanceExists = async (costumer, spentBalance) => {
  * @param {Array.<String>} isbn - The array that contains the purchased books
  * @returns {Promise<Number>}
  */
-const calculateSubtotal = async (isbn) => {
+const calculateSubtotal = async (books) => {
     var subtotal = 0
 
-    if (!Array.isArray(isbn)) {
-        throw Error('param: isbn is invalid.')
+    if (!Array.isArray(books)) {
+        throw Error('param: books is invalid.')
     }
 
-    for (let i = 0; i < isbn.length; i++) {
+    for (let i = 0; i < books.length; i++) {
         try {
-            let price = 30 // let book = await BookModel.findOne({ isbn: isbn[i] }).price
-            subtotal += price // await bookExists(book)
+            let book = await Book.findOne({ isbn: books[i].isbn })
+            books[i].isbn = book._id
+            await bookExists(book, i)
+            let price = 12 * books[i].qnt //validate quantity and book price
+            subtotal += price
         } catch (e) {
             throw e
         }
@@ -136,7 +138,19 @@ const calculateSubtotal = async (isbn) => {
  * @returns {Promise<Number>}
  */
 const getVat = async () => {
-    return 0.23 //brute force
+    return VatRates.rates.PT.standard_rate
+}
+
+/**
+ * Verifies if the book exists
+ *
+ * @param {Object} book
+ * @returns {Promisse<void>}
+ */
+const bookExists = async (book, i) => {
+    if (book == null) {
+        throw Error('param: book index ' + i + ' does not exist')
+    }
 }
 
 /**
@@ -158,18 +172,6 @@ const addPurchase = async (schema) => {
 }
 
 /**
- * Verifies if the book exists
- *
- * @param {Object} book
- * @returns {Promisse<void>}
- */
-const bookExists = async (book) => {
-    if (book == null) {
-        throw Error('param: isbn index ' + i + ' is invalid')
-    }
-}
-
-/**
  * Get all Purchases
  *
  * @param {Request} req
@@ -182,7 +184,7 @@ const getAllPurchases = async (req, res, next) => {
 
         const output = purchases.map((purchases) => {
             return {
-                // FIXME isbn: purchases.isbn,
+                books: purchases.books,
                 type: purchases.type,
                 reader_card_num: purchases.reader_card_num,
                 spent_balance: purchases.spent_balance,
@@ -220,9 +222,10 @@ const handleDate = (date) => {
  * @param {NextFunction} next
  */
 const getPurchaseByCostumer = async (req, res, next) => {
+    readerCardNum = req.params['reader_card_num']
     try {
         const purchases = await Purchase.find({
-            reader_card_num: req.readerCardNum,
+            reader_card_num: readerCardNum,
         })
         res.status(200).json({ purchases: purchases })
     } catch (e) {
