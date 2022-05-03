@@ -9,20 +9,21 @@
 
 const onDocumentLoad = async () => {
     handleSlideOverClickEvents()
-    handleAuthClickEvents()
 
-    if (isLoggedIn()) {
-        await retrieveAccountInfo(localStorage.getItem('email')).then(() => {
+    Auth().handleClickEvents()
+
+    if (Auth().isLoggedIn()) {
+        await Auth().retrieveAccountInfo(localStorage.getItem('email')).then(() => {
             console.log('[!] Account Information Loaded')
         })
 
-        await loadModule('customers').then(async () => {
+        await Module().loadModule('customers').then(async () => {
             console.log('[!] Customers Module Loaded')
 
-            hideAuthPage()
+            Auth().hideAuthPage()
         })
     } else {
-        showAuthPage()
+        Auth().showAuthPage()
     }
 }
 
@@ -32,76 +33,88 @@ document.addEventListener('DOMContentLoaded', onDocumentLoad)
     Auth - Helpers functions to handle authentication
 --- */
 
-const handleAuthClickEvents = () => {
-    document.getElementById('auth-btn').addEventListener('click', onAuth)
-}
+const Auth = () => {
 
-const isLoggedIn = () => {
-    return (
-        localStorage.getItem('token') !== null &&
-        localStorage.getItem('email') !== null
-    )
-}
-
-const logout = () => {
-    localStorage.clear()
-    location.reload()
-}
-
-const onAuth = async () => {
-    const account = {
-        email: document.getElementById('email').value,
-        password: document.getElementById('password').value,
+    const handleClickEvents = () => {
+        document.getElementById('auth-btn').addEventListener('click', onAuth)
     }
 
-    await fetch('http://localhost:3000/api/auth', {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(account),
-    })
-        .then((raw) => raw.json())
-        .then((res) => {
-            if (res['error']) {
-                document.getElementById('error').innerHTML = res['error']
-                document.getElementById('error').classList.remove('hidden')
-                localStorage.clear()
-                return
-            }
+    const isLoggedIn = () => {
+        return (
+            localStorage.getItem('token') !== null &&
+            localStorage.getItem('email') !== null
+        )
+    }
 
-            document.getElementById('error').classList.add('hidden')
-            localStorage.setItem('token', res['token'])
-            localStorage.setItem('email', account.email)
+    const logout = () => {
+        localStorage.clear()
+        location.reload()
+    }
 
-            retrieveAccountInfo(account.email)
-            hideAuthPage()
+    const onAuth = async () => {
+        const account = {
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value,
+        }
+
+        await fetch('http://localhost:3000/api/auth', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(account),
         })
-}
+            .then((raw) => raw.json())
+            .then((res) => {
+                if (res['error']) {
+                    document.getElementById('error').innerHTML = res['error']
+                    document.getElementById('error').classList.remove('hidden')
+                    localStorage.clear()
+                    return
+                }
 
-const retrieveAccountInfo = async (email) => {
-    await fetch(`http://localhost:3000/api/account/${email}`, {
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-    })
-        .then((raw) => raw.json())
-        .then((res) => {
-            document.getElementById('email-account').innerHTML = res['email']
-            document.getElementById('role').innerHTML = res['role']
+                document.getElementById('error').classList.add('hidden')
+                localStorage.setItem('token', res['token'])
+                localStorage.setItem('email', account.email)
+
+                retrieveAccountInfo(account.email)
+                hideAuthPage()
+            })
+    }
+
+    const retrieveAccountInfo = async (email) => {
+        await fetch(`http://localhost:3000/api/account/${email}`, {
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
         })
-}
+            .then((raw) => raw.json())
+            .then((res) => {
+                document.getElementById('email-account').innerHTML = res['email']
+                document.getElementById('role').innerHTML = res['role']
+            })
+    }
 
-const hideAuthPage = () => {
-    document.getElementById('dashboard').classList.remove('hidden')
-    document.getElementById('auth').classList.add('hidden')
-}
+    const hideAuthPage = () => {
+        document.getElementById('dashboard').classList.remove('hidden')
+        document.getElementById('auth').classList.add('hidden')
+    }
 
-const showAuthPage = () => {
-    document.getElementById('dashboard').classList.add('hidden')
-    document.getElementById('auth').classList.remove('hidden')
+    const showAuthPage = () => {
+        document.getElementById('dashboard').classList.add('hidden')
+        document.getElementById('auth').classList.remove('hidden')
+    }
+
+    return {
+        handleClickEvents,
+        isLoggedIn,
+        logout,
+        retrieveAccountInfo,
+        hideAuthPage,
+        showAuthPage,
+    }
 }
 
 /* ---
@@ -127,7 +140,7 @@ const requiredStyles = classNames('text-xs text-red-600 font-semibold')
 
 const inputStyles = classNames(
     'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
-    'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+    'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
 )
 
 /**
@@ -216,35 +229,23 @@ const createForm = (fields) => {
     Tables - Helpers functions to handle tables in DOM
 --- */
 
-const columnStyles = classNames(
-    'px-6 py-3',
-    'border-b border-gray-200 bg-gray-50',
-    'text-left text-xs font-medium text-gray-500',
-    'uppercase tracking-wider'
-)
-
-const rowStyles = classNames(
-    'px-6 py-3',
-    'whitespace-nowrap text-sm text-gray-800'
-)
-
-const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
-
-const rowActionsStyles = classNames(
-    'py-3 px-1 whitespace-nowrap text-sm font-medium'
-)
-
-const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
-
-const trStyles = classNames('border-t border-gray-200')
-
-const thStyles = classNames(
-    'px-6 py-3 border-b border-gray-200 bg-gray-50',
-    'text-left text-xs font-medium text-gray-500',
-    'uppercase tracking-wider'
-)
-
 const Table = () => {
+    const rowStyles = classNames('px-6 py-3 whitespace-nowrap text-sm text-gray-800')
+
+    const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
+
+    const rowActionsStyles = classNames('py-3 px-1 whitespace-nowrap text-sm font-medium')
+
+    const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
+
+    const trStyles = classNames('border-t border-gray-200')
+
+    const thStyles = classNames(
+        'px-6 py-3 border-b border-gray-200 bg-gray-50',
+        'text-left text-xs font-medium text-gray-500',
+        'uppercase tracking-wider',
+    )
+
     /**
      * Add actions to the table
      * @param {{label: string, color: string, cb: function}[]} actions
@@ -258,6 +259,7 @@ const Table = () => {
             const div = document.createElement('button')
             div.className = classNames(rowActionsStyles, action.color)
             div.innerHTML = action.label
+            div.onclick = action.cb
 
             td.appendChild(div)
         })
@@ -327,7 +329,14 @@ const Table = () => {
 
         rowsCallback
             .map((row) => {
-                row.appendChild(addActions(actions))
+                const buttons = addActions(actions)
+
+                buttons.childNodes.forEach((child) => {
+                    child.id = row.firstElementChild.innerHTML
+                })
+
+                row.appendChild(buttons)
+
                 return row
             })
             .forEach((row) => {
@@ -376,41 +385,53 @@ const extractColumns = (firstRow) => {
     Logic to load a module
 --- */
 
-/**
- * Load module
- *
- * @param {string} module
- * @return {Promise}
- */
-const loadModule = (module) => {
-    return new Promise((resolve, reject) => {
-        switch (module) {
-            case 'customers':
-                return resolve(new CustomersModule())
-            case 'employees':
-                return resolve(new EmployeesModule())
-            case 'purchases':
-                return resolve(new PurchasesModule())
-            case 'books':
-                return resolve(new BooksModule())
-            default:
-                return reject('Module not found!')
-        }
-    })
+const Module = () => {
+    /**
+     * Load module
+     *
+     * @param {string} module
+     * @return {Promise}
+     */
+    const loadModule = (module) => {
+        return new Promise((resolve, reject) => {
+            switch (module) {
+                case 'customers':
+                    Customers().init()
+                    return resolve()
+                case 'employees':
+                    Employees().init()
+                    return resolve()
+                case 'purchases':
+                    Purchases().init()
+                    return resolve()
+                case 'books':
+                    Books().init()
+                    return resolve()
+                default:
+                    return reject('Module not found!')
+            }
+        })
+    }
+
+    /**
+     * Set labels and events listeners to a module
+     * @param {string} moduleLabel
+     * @param {string} slideOverLabel
+     * @param {function} cb
+     */
+    const initModule = (moduleLabel, slideOverLabel, cb) => {
+        document.getElementById('module-label').innerHTML = moduleLabel
+        document.getElementById('module-btn-action').innerHTML = slideOverLabel
+        document.getElementById('slideover-label').innerHTML = slideOverLabel
+        document.getElementById('form-submit-btn').onclick = cb
+    }
+
+    return {
+        loadModule,
+        initModule,
+    }
 }
 
-/**
- * Set labels and events listeners to a module
- * @param {string} moduleLabel
- * @param {string} slideOverLabel
- * @param {function} cb
- */
-const initModule = (moduleLabel, slideOverLabel, cb) => {
-    document.getElementById('module-label').innerHTML = moduleLabel
-    document.getElementById('module-btn-action').innerHTML = slideOverLabel
-    document.getElementById('slideover-label').innerHTML = slideOverLabel
-    document.getElementById('form-submit-btn').addEventListener('click', cb)
-}
 
 /* ---
     Modules Declaration
@@ -418,15 +439,15 @@ const initModule = (moduleLabel, slideOverLabel, cb) => {
 
 const API_URL = 'http://localhost:3000/api'
 
-class CustomersModule {
-    constructor() {
-        initModule('Customers', 'New Customer', this.onFormSubmission)
+const Customers = () => {
+    const init = () => {
+        Module().initModule('Customers', 'New Customer', onFormSubmission)
 
-        this.fetchCustomers()
-        this.renderForm()
+        fetchCustomers()
+        renderForm()
     }
 
-    renderForm = () => {
+    const renderForm = () => {
         const fields = [
             {
                 label: 'Reader Card Number',
@@ -456,22 +477,22 @@ class CustomersModule {
         createForm(fields)
     }
 
-    fetchCustomers = () => {
+    const fetchCustomers = () => {
         const actions = [
             {
                 label: 'View',
                 color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
+                cb: (event) => onView(event),
             },
             {
                 label: 'Edit',
                 color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
+                cb: (event) => onEdit(event),
             },
             {
                 label: 'Delete',
                 color: 'text-red-600',
-                cb: () => console.log('clicked'),
+                cb: (event) => onDelete(event),
             },
         ]
 
@@ -484,19 +505,43 @@ class CustomersModule {
             })
     }
 
-    onFormSubmission = () => {
+    const onFormSubmission = () => {
         console.log('sub')
+    }
+
+    const onView = (event) => {
+        const id = event.target.id
+
+        fetch(API_URL + '/customer/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['customer'])
+            .then((customer) => {
+                console.log(customer)
+            })
+    }
+
+    const onEdit = (event) => {
+        console.log(event.target.id)
+    }
+
+    const onDelete = (event) => {
+        console.log(event.target.id)
+    }
+
+    return {
+        init,
     }
 }
 
-class EmployeesModule {
-    constructor() {
-        initModule('Employees', 'New Employee', this.onFormSubmission)
-        this.renderForm()
-        this.fetchEmployees()
+const Employees = () => {
+    const init = () => {
+        Module().initModule('Employees', 'New Employee', onFormSubmission)
+
+        renderForm()
+        fetchEmployees()
     }
 
-    renderForm = () => {
+    const renderForm = () => {
         const fields = [
             { label: 'Employee No', id: 'employee_no', required: true },
             { label: 'Name', id: 'name', required: true },
@@ -511,7 +556,7 @@ class EmployeesModule {
         createForm(fields)
     }
 
-    fetchEmployees = () => {
+    const fetchEmployees = () => {
         const actions = [
             {
                 label: 'View',
@@ -539,17 +584,82 @@ class EmployeesModule {
             })
     }
 
-    onFormSubmission = () => {}
-}
-
-class PurchasesModule {
-    constructor() {
-        initModule('Purchases', 'New Purchase', this.onFormSubmission)
-        this.renderForm()
-        this.fetchPurchases()
+    const onFormSubmission = () => {
     }
 
-    renderForm = () => {
+    return {
+        init,
+    }
+}
+
+const Books = () => {
+    const init = () => {
+        Module().initModule('Books', 'New Book', onFormSubmission)
+
+        renderForm()
+        onModuleLoad()
+    }
+
+    const renderForm = () => {
+        const fields = [
+            { label: 'ISBN', id: 'isbn', required: true },
+            { label: 'Stock New', id: 'stock_new', required: true },
+            { label: 'Stock Second Hand', id: 'stock_used', required: true },
+        ]
+
+        createForm(fields)
+    }
+
+    const onModuleLoad = () => {
+        const actions = [
+            {
+                label: 'View',
+                color: 'text-indigo-600',
+                cb: () => console.log('clicked'),
+            },
+            {
+                label: 'Edit',
+                color: 'text-yellow-600',
+                cb: () => console.log('clicked'),
+            },
+            {
+                label: 'Delete',
+                color: 'text-red-600',
+                cb: () => console.log('clicked'),
+            },
+        ]
+
+        fetch(API_URL + '/books')
+            .then((res) => res.json())
+            .then((raw) => raw['books'])
+            .then((rows) => {
+                const columns = extractColumns(rows[0])
+                Table().render(columns, rows, actions)
+            })
+    }
+
+    const onFormSubmission = () => {
+    }
+
+    return {
+        init,
+    }
+}
+
+/* ---
+    Purchase - Add new book
+--- */
+
+
+const Purchases = () => {
+    const init = () => {
+        Module().initModule('Purchases', 'New Purchase', onFormSubmission)
+
+        renderForm()
+        fetchPurchases()
+    }
+
+    const renderForm = () => {
         fetch('http://localhost:3000/forms/purchases.ejs')
             .then((response) => response.text())
             .then((text) => {
@@ -557,7 +667,7 @@ class PurchasesModule {
             })
     }
 
-    fetchPurchases = () => {
+    const fetchPurchases = () => {
         const actions = [
             {
                 label: 'View',
@@ -586,61 +696,13 @@ class PurchasesModule {
             .then(() => handlePurchaseClickEvents())
     }
 
-    onFormSubmission = () => {
+    const onFormSubmission = () => {
+    }
+
+    return {
+        init,
     }
 }
-
-class BooksModule {
-    constructor() {
-        initModule('Books', 'New Book', this.onFormSubmission)
-        this.renderForm()
-        this.onModuleLoad()
-    }
-
-    renderForm = () => {
-        const fields = [
-            { label: 'ISBN', id: 'isbn', required: true },
-            { label: 'Stock New', id: 'stock_new', required: true },
-            { label: 'Stock Second Hand', id: 'stock_used', required: true },
-        ]
-
-        createForm(fields)
-    }
-
-    onModuleLoad = () => {
-        const actions = [
-            {
-                label: 'View',
-                color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: () => console.log('clicked'),
-            },
-        ]
-
-        fetch(API_URL + '/books')
-            .then((res) => res.json())
-            .then((raw) => raw['books'])
-            .then((rows) => {
-                const columns = extractColumns(rows[0])
-                Table().render(columns, rows, actions)
-            })
-    }
-
-    onFormSubmission = () => {}
-}
-
-/* ---
-    Purchase - Add new book
---- */
 
 const handlePurchaseClickEvents = () => {
     resetForm()
@@ -649,16 +711,13 @@ const handlePurchaseClickEvents = () => {
 
 const removeIsbn = (button) => {
     button.addEventListener('click', () => {
-        if (
-            button.parentElement.parentElement.parentElement
-                .childElementCount == 1
-        ) {
+        if (button.parentElement.parentElement.parentElement.childElementCount === 1) {
             document.getElementById('form-submit-btn').disabled = true
             document
                 .getElementById('form-submit-btn')
                 .setAttribute(
                     'class',
-                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
                 )
         }
         button.parentElement.parentElement.remove()
@@ -673,7 +732,7 @@ const addIsbn = () => {
             .getElementById('form-submit-btn')
             .setAttribute(
                 'class',
-                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
             )
     })
 }
@@ -683,7 +742,7 @@ const resetForm = () => {
         .getElementById('module-btn-action')
         .addEventListener('click', () => {
             document.getElementById(
-                'form-container'
+                'form-container',
             ).firstElementChild.firstElementChild.innerHTML = ''
             document.getElementById('add-isbn').click()
         })
@@ -711,11 +770,10 @@ const appendIsbnForm = () => {
     let isbnInput = document.createElement('input')
     isbnInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     isbnInput.setAttribute('type', 'text')
     isbnInput.setAttribute('name', 'isbn')
-    isbnInput.setAttribute('autocomplete', 'given-name')
 
     isbnDiv.append(isbnLabel)
     isbnDiv.append(isbnInput)
@@ -733,7 +791,7 @@ const appendIsbnForm = () => {
     let typeSelect = document.createElement('select')
     typeSelect.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     typeSelect.setAttribute('name', 'book-type')
 
@@ -763,7 +821,7 @@ const appendIsbnForm = () => {
     let qntInput = document.createElement('input')
     qntInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     qntInput.setAttribute('name', 'quantity')
     qntInput.setAttribute('type', 'number')
@@ -783,7 +841,7 @@ const appendIsbnForm = () => {
     let removeButton = document.createElement('button')
     removeButton.setAttribute(
         'class',
-        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
     )
     removeButton.setAttribute('type', 'button')
     removeButton.setAttribute('name', 'remove-isbn')
@@ -801,7 +859,7 @@ const appendIsbnForm = () => {
     svgPath.setAttribute('stroke-linejoin', 'round')
     svgPath.setAttribute(
         'd',
-        'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'
+        'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
     )
 
     removeDiv.append(removeLabel)
