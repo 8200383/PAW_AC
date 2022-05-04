@@ -17,11 +17,11 @@ const createPurchase = async (req, res, next) => {
             case 'employee':
                 await createInStorePurchase(req.body)
                 break
-            case 'costumer':
+            case 'custumer':
                 await createWebPurchase(req.body)
                 break
             default:
-                throw new Error('Acess denied')
+                throw Error('Acess denied')
         }
         res.status(200).json({ message: 'Purchase successfully added' })
     } catch (e) {
@@ -35,7 +35,9 @@ const createPurchase = async (req, res, next) => {
  * @param {Object} schema
  * @returns {Promise<void>}
  */
-const createWebPurchase = async (schema) => {}
+const createWebPurchase = async (schema) => {
+    throw Error('Not implemented')
+}
 
 /**
  * Add In Store type Purchase
@@ -44,16 +46,14 @@ const createWebPurchase = async (schema) => {}
  * @returns {Promise<void>}
  */
 const createInStorePurchase = async (schema) => {
-    var costumer = null
     schema.type = 'In Store'
 
     try {
-        costumer = await findCostumer(schema.reader_card_num)
-        await costumerExists(costumer)
-        await spentBalanceExists(schema.reader_card_num, schema.spent_balance)
+        await customerExists(schema)
+        await spentBalanceExists(schema.customer, schema.spent_balance)
         schema.subtotal = await calculateSubtotal(schema.books)
-        schema.vat = await getVat()
-        schema.total = schema.vat * schema.subtotal + schema.subtotal //apply discount and update balance
+        schema.vat = VatRates.rates.PT.standard_rate
+        schema.total = (schema.vat / 100) * schema.subtotal + schema.subtotal //apply discount and update balance
         schema.employee_num = '1' //brute force
         await addPurchase(schema)
     } catch (e) {
@@ -62,45 +62,38 @@ const createInStorePurchase = async (schema) => {
 }
 
 /**
- * Find a Costumer by his reader card number
+ * Check if a customer exists given his reader_card_num
  *
- * @param {Number} readerCardNum - Identifies the costumer
- * @returns {Promisse<CustomerModel>}
+ * @param {Object} schema
+ * @returns {Promisse<void>}
+ * @throws {Error} if the customer does not exist
  */
-const findCostumer = async (readerCardNum) => {
-    var costumer = null
-
+const customerExists = async (schema) => {
+    var customer = null
     try {
-        costumer = await Customer.findOne({
-            reader_card_num: readerCardNum,
+        customer = await Customer.findOne({
+            reader_card_num: schema.customer,
         })
-        return costumer
     } catch (e) {
         throw e
     }
-}
 
-/**
- * Verifies if the costumer exists
- *
- * @param {Object} costumer
- * @returns {Promise<void>}
- */
-const costumerExists = async (costumer) => {
-    if (costumer == null) {
+    if (customer == null) {
         throw Error('param: reader_card_num does not exists.')
     }
+    schema.customer = customer._id
 }
 
 /**
- * Verifies if the spent balance is valid
+ * Check if the spent balance is valid
  *
- * @param {Object} costumer
- * @param {Number} spentBalance - The amount of points that the costumer wants to use
+ * @param {Object} customer
+ * @param {Number} spentBalance - The amount of points that the custumer wants to use
  * @returns {Promise<void>}
+ * @throws {Error} if the spent_balance is not valid
  */
-const spentBalanceExists = async (costumer, spentBalance) => {
-    if (costumer.accumulated_balance > spentBalance) {
+const spentBalanceExists = async (customer, spentBalance) => {
+    if (customer.accumulated_balance > spentBalance) {
         throw Error('param: spent_balance is not valid.')
     }
 }
@@ -108,11 +101,12 @@ const spentBalanceExists = async (costumer, spentBalance) => {
 /**
  * Calculates the purchase subtotal
  *
- * @param {Array.<String>} isbn - The array that contains the purchased books
+ * @param {Array.<String>} books - The array that contains the purchased books
  * @returns {Promise<Number>}
  */
 const calculateSubtotal = async (books) => {
     var subtotal = 0
+    var booksToUpdateStock = []
 
     if (!Array.isArray(books)) {
         throw Error('param: books is invalid.')
@@ -120,37 +114,85 @@ const calculateSubtotal = async (books) => {
 
     for (let i = 0; i < books.length; i++) {
         try {
-            let book = await Book.findOne({ isbn: books[i].isbn })
-            books[i].isbn = book._id
-            await bookExists(book, i)
-            let price = 12 * books[i].qnt //validate quantity and book price
+            var book = await getBookAndValidateStock(books[i], i)
+            booksToUpdateStock.push(book)
+            var price = 0
+            switch (books[i].type) {
+                case 'New':
+                    price = book.price_new * books[i].qnt
+                    break
+                case 'Used':
+                    price = book.price_used * books[i].qnt
+                    break
+            }
             subtotal += price
         } catch (e) {
             throw e
         }
     }
+    await updateBooksStock(booksToUpdateStock, books)
     return subtotal
 }
 
 /**
- * Returns the VAT
+ * Updates the books stock
  *
- * @returns {Promise<Number>}
+ * @param {Array} booksToUpdateStock
+ * @param {Array} books
+ * @returns {Promisse<void>}
  */
-const getVat = async () => {
-    return VatRates.rates.PT.standard_rate
+const updateBooksStock = async (booksToUpdateStock, books) => {
+    for (let i = 0; i < books.length; i++) {
+        switch (books[i].type) {
+            case 'New':
+                booksToUpdateStock[i].stock_new -= books[i].qnt
+                break
+            case 'Used':
+                booksToUpdateStock[i].stock_used -= books[i].qnt
+                break
+        }
+        try {
+            await booksToUpdateStock[i].validate()
+            await booksToUpdateStock[i].save()
+        } catch (e) {
+            throw e
+        }
+    }
 }
 
 /**
- * Verifies if the book exists
+ * Returns the book given his isbn and checks if the stock is avaliable
  *
  * @param {Object} book
- * @returns {Promisse<void>}
+ * @param {Number} i
+ * @returns {Object}
  */
-const bookExists = async (book, i) => {
-    if (book == null) {
+const getBookAndValidateStock = async (book, i) => {
+    var bookData = null
+
+    try {
+        bookData = await Book.findOne({
+            isbn: book.book,
+        })
+    } catch (e) {
+        throw e
+    }
+
+    if (bookData == null) {
         throw Error('param: book index ' + i + ' does not exist')
     }
+    if (book.type != 'New' && book.type != 'Used') {
+        throw Error('param: book index ' + i + ' type must be New or Used')
+    }
+    if (book.type == 'New' && book.qnt <= bookData.stock_new) {
+        book.book = bookData._id
+        return bookData
+    }
+    if (book.type == 'Used' && book.qnt <= bookData.stock_used) {
+        book.book = bookData._id
+        return bookData
+    }
+    throw Error('param: book index ' + i + ' stock is invalid')
 }
 
 /**
@@ -182,27 +224,49 @@ const getAllPurchases = async (req, res, next) => {
     try {
         const purchases = await Purchase.find({})
 
-        const output = purchases.map((purchases) => {
-            return {
-                books: purchases.books,
-                type: purchases.type,
-                reader_card_num: purchases.reader_card_num,
-                spent_balance: purchases.spent_balance,
-                payment_method: purchases.payment_method,
-                subtotal: purchases.subtotal,
-                vat: purchases.vat,
-                total: purchases.total,
-                employee_num: purchases.employee_num,
-                created_at: handleDate(purchases.created_at),
-            }
-        })
-
+        const output = await Promise.all(
+            purchases.map(async (purchases) => {
+                return {
+                    books: await handleBooks(purchases.books),
+                    type: purchases.type,
+                    customer: purchases.customer,
+                    spent_balance: purchases.spent_balance,
+                    payment_method: purchases.payment_method,
+                    subtotal: purchases.subtotal,
+                    vat: purchases.vat,
+                    total: purchases.total,
+                    employee_num: purchases.employee_num,
+                    created_at: handleDate(purchases.created_at),
+                }
+            })
+        )
         return res.status(200).json({ purchases: output })
     } catch (e) {
         next(e)
     }
 }
 
+const handleBooks = async (books) => {
+    var parsedBooks = []
+
+    for (let i = 0; i < books.length; i++) {
+        parsedBooks[i] = JSON.parse(JSON.stringify(books[i]))
+        try {
+            var book = await Book.findOne({ _id: books[i].book })
+            parsedBooks[i].book = book.isbn
+        } catch (e) {
+            throw e
+        }
+    }
+    return parsedBooks
+}
+
+/**
+ * Converts date format
+ *
+ * @param {Object} date
+ * @returns {Promisse<void>}
+ */
 const handleDate = (date) => {
     const dateObj = new Date(date)
     return (
@@ -222,7 +286,7 @@ const handleDate = (date) => {
  * @param {NextFunction} next
  */
 const getPurchaseByCostumer = async (req, res, next) => {
-    readerCardNum = req.params['reader_card_num']
+    readerCardNum = req.params['customer']
     try {
         const purchases = await Purchase.find({
             reader_card_num: readerCardNum,

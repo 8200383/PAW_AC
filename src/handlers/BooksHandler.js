@@ -13,12 +13,8 @@ const createBook = async (req, res, next) => {
     Isbn.provider([Isbn.PROVIDER_NAMES.GOOGLE])
         .resolve(req.body.isbn)
         .then(async (book) => {
-            let schema = await createSchema(
-                req.body.isbn,
-                req.body.stock_new,
-                req.body.stock_used,
-                book,
-            )
+            console.log(book)
+            let schema = await createSchema(req.body, book)
             await addBook(schema)
             res.status(200).json({ added_book: schema })
         })
@@ -30,15 +26,13 @@ const createBook = async (req, res, next) => {
 /**
  * Create book schema with google books api
  *
- * @param {String} isbn
- * @param {Number} stockNew
- * @param {Number} stockUsed
+ * @param {Object} body
  * @param {Object} book
  * @returns {Promise<Object>}
  */
-const createSchema = async (isbn, stockNew, stockUsed, book) => {
+const createSchema = async (body, book) => {
     return {
-        isbn: isbn,
+        isbn: body.isbn,
         title: book.title,
         authors: book.authors,
         publisher: book.publisher,
@@ -46,14 +40,39 @@ const createSchema = async (isbn, stockNew, stockUsed, book) => {
         language: book.language,
         pages: book.pageCount,
         description: book.description,
-        category: book.categories[0],
+        category: body.category,
         maturaty_rating: book.maturityRating,
-        stock_new: stockNew,
-        stock_used: stockUsed,
+        stock_new: body.stock_new,
+        stock_used: body.stock_used,
+        price_new: body.price_new,
+        price_used: body.price_used,
         images: {
             small_thumbnail: book.imageLinks.smallThumbnail,
             thumbnail: book.imageLinks.thumbnail,
         },
+    }
+}
+
+/**
+ * Checks if book already exists
+ *
+ * @param {String} isbn
+ * @returns {Promisse<void>}
+ * @throws {Error} if the book already exists
+ */
+const bookExists = async (isbn) => {
+    var book = null
+
+    try {
+        book = await Book.findOne({
+            isbn: isbn,
+        })
+    } catch (e) {
+        throw e
+    }
+
+    if (book != null) {
+        throw Error('Book already exists.')
     }
 }
 
@@ -64,10 +83,9 @@ const createSchema = async (isbn, stockNew, stockUsed, book) => {
  * @returns {Promise<void>}
  */
 const addBook = async (schema) => {
-    var book = null
-
     try {
-        book = new Book(schema)
+        var book = new Book(schema)
+        await bookExists(schema.isbn)
         await book.validate()
         await book.save()
     } catch (e) {
@@ -76,47 +94,103 @@ const addBook = async (schema) => {
 }
 
 /**
- * Update book new stock
+ * Returns a book given his isbn
  *
- * @param {Request} req
- * @param {Response} res
- * @param {NextFunction} next
+ * @param {String} isbn
+ * @returns {Object}
+ * @throws {Error} if the book does not exist
  */
-const updateStockNew = async (req, res, next) => {
+const findBook = async (isbn) => {
     var book = null
 
     try {
         book = await Book.findOne({
-            isbn: req.body.isbn,
+            isbn: isbn,
         })
+    } catch (e) {
+        throw e
+    }
 
-        book.stock_new = req.body.stock
+    if (book == null) {
+        throw Error('The book does not exist.')
+    }
+    return book
+}
+
+/**
+ * Update book stock
+ *
+ * @param {String} isbn
+ * @param {Number} stock
+ * @param {String} type
+ * @returns {Promisse<void>}
+ */
+const updateStock = async (isbn, stock, type) => {
+    try {
+        var book = await findBook(isbn)
+        switch (type) {
+            case 'used':
+                book.stock_used = stock
+                break
+            case 'new':
+                book.stock_new = stock
+                break
+        }
         await book.validate()
         await book.save()
-        res.status(200).json({ updated_book: req.body.isbn })
     } catch (e) {
-        next(e)
+        throw e
     }
 }
 
 /**
- * Update book used stock
+ * Update book price
+ *
+ * @param {String} isbn
+ * @param {Number} price
+ * @param {String} type
+ * @returns {Promisse<void>}
+ */
+const updatePrice = async (isbn, price, type) => {
+    try {
+        var book = await findBook(isbn)
+        switch (type) {
+            case 'used':
+                book.price_used = price
+                break
+            case 'new':
+                book.price_new = price
+                break
+        }
+        await book.validate()
+        await book.save()
+    } catch (e) {
+        throw e
+    }
+}
+
+/**
+ * Patch a book
  *
  * @param {Request} req
  * @param {Response} res
  * @param {NextFunction} next
+ * 
  */
-const updateStockUsed = async (req, res, next) => {
-    var book = null
-
+const patchBook = async (req, res, next) => {
     try {
-        book = await Book.findOne({
-            isbn: req.body.isbn,
-        })
-
-        book.stock_used = req.body.stock
-        await book.validate()
-        await book.save()
+        if (req.body.stock_used != undefined) {
+            await updateStock(req.body.isbn, req.body.stock_used, 'used')
+        }
+        if (req.body.stock_new != undefined) {
+            await updateStock(req.body.isbn, req.body.stock_new, 'new')
+        }
+        if (req.body.price_used != undefined) {
+            await updatePrice(req.body.isbn, req.body.price_used, 'used')
+        }
+        if (req.body.price_new != undefined) {
+            await updatePrice(req.body.isbn, req.body.price_new, 'new')
+        }
         res.status(200).json({ updated_book: req.body.isbn })
     } catch (e) {
         next(e)
@@ -133,7 +207,6 @@ const updateStockUsed = async (req, res, next) => {
 const getAllBooks = async (req, res, next) => {
     try {
         const books = await Book.find({})
-
         const output = books.map((book) => {
             return {
                 isbn: book.isbn,
@@ -142,7 +215,6 @@ const getAllBooks = async (req, res, next) => {
                 publisher: book.publisher,
             }
         })
-
         return res.status(200).json({ books: output })
     } catch (e) {
         return next(e)
@@ -157,10 +229,8 @@ const getAllBooks = async (req, res, next) => {
  * @param {NextFunction} next
  */
 const getCategories = async (req, res, next) => {
-    var categories = null
-
     try {
-        categories = await Book.distinct('category')
+        var categories = await Book.distinct('category')
         res.status(200).json({ categories: categories })
     } catch (e) {
         next(e)
@@ -169,8 +239,7 @@ const getCategories = async (req, res, next) => {
 
 module.exports = {
     createBook,
-    updateStockNew,
-    updateStockUsed,
+    patchBook,
     getAllBooks,
     getCategories,
 }

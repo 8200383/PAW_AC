@@ -10,9 +10,9 @@ const arrayMin = (books) => {
 }
 
 const bookSchema = new Schema({
-    isbn: {
+    book: {
         type: Schema.Types.ObjectId,
-        ref: 'Book.isbn',
+        ref: 'Book',
         required: true,
     },
     type: {
@@ -32,8 +32,9 @@ const purchaseSchema = new Schema({
         enum: ['Web', 'In Store'],
         required: true,
     },
-    reader_card_num: {
-        type: Number,
+    customer: {
+        type: Schema.Types.ObjectId,
+        ref: 'Customer',
         required: true,
     },
     books: {

@@ -32,18 +32,19 @@ const bookSchema = new Schema({
     },
     description: {
         type: String,
-        required: true,
+        required: false,
     },
     category: {
         type: String,
-        required: true,
+        required: false,
     },
     maturaty_rating: {
         type: String,
-        required: true,
+        required: false,
     },
     criticism: {
         type: Number,
+        required: false
     },
     stock_new: {
         type: Number,
@@ -62,6 +63,16 @@ const bookSchema = new Schema({
             validator: Number.isInteger,
             message: '{VALUE} is not an integer value',
         },
+    },
+    price_new: {
+        type: Number,
+        min: 0,
+        required: true,
+    },
+    price_used: {
+        type: Number,
+        min: 0,
+        required: true,
     },
     images: {
         small_thumbnail: {

@@ -6,11 +6,8 @@ router
     .route('/api/books')
     .post(BooksHandler.createBook)
     .get(BooksHandler.getAllBooks)
+    .patch(BooksHandler.patchBook)
 
-router.route('/books/stock_new').patch(BooksHandler.updateStockNew)
-
-router.route('/books/stock_used').patch(BooksHandler.updateStockUsed)
-
-router.route('/books/categories').get(BooksHandler.getCategories)
+router.route('/api/books/categories').get(BooksHandler.getCategories)
 
 module.exports = router
