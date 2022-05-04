@@ -3,27 +3,33 @@
     business logic for the BookStore API, styles and DOM helper functions
 --- */
 
+const API_URL = 'http://localhost:3000/api'
+
+const modules = [
+    { label: 'Customers', onClick: () => Customers().init() },
+    { label: 'Employees', onClick: () => Employees().init() },
+    { label: 'Books', onClick: () => Books().init() },
+    { label: 'Purchases', onClick: () => Purchases().init() },
+]
+
 /* ---
     Logic that appends when the DOM is fully load
 --- */
 
 const onDocumentLoad = async () => {
-    handleSlideOverClickEvents()
-
+    Auth().toggleAuthPage()
     Auth().handleClickEvents()
+
+    Slideover().handleClickEvents()
+    Sidebar().appendModules(modules, 'desktop-sidebar')
+    Sidebar().appendModules(modules, 'mobile-sidebar')
 
     if (Auth().isLoggedIn()) {
         await Auth().retrieveAccountInfo(localStorage.getItem('email')).then(() => {
             console.log('[!] Account Information Loaded')
         })
 
-        await Module().loadModule('customers').then(async () => {
-            console.log('[!] Customers Module Loaded')
-
-            Auth().hideAuthPage()
-        })
-    } else {
-        Auth().showAuthPage()
+        Customers().init()
     }
 }
 
@@ -37,6 +43,7 @@ const Auth = () => {
 
     const handleClickEvents = () => {
         document.getElementById('auth-btn').addEventListener('click', onAuth)
+        document.getElementById('logout-btn').addEventListener('click', logout)
     }
 
     const isLoggedIn = () => {
@@ -79,12 +86,12 @@ const Auth = () => {
                 localStorage.setItem('email', account.email)
 
                 retrieveAccountInfo(account.email)
-                hideAuthPage()
+                toggleAuthPage()
             })
     }
 
     const retrieveAccountInfo = async (email) => {
-        await fetch(`http://localhost:3000/api/account/${email}`, {
+        await fetch(API_URL + `/account/${email}`, {
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
@@ -97,14 +104,15 @@ const Auth = () => {
             })
     }
 
-    const hideAuthPage = () => {
+    const toggleAuthPage = () => {
+        if (!isLoggedIn()) {
+            document.getElementById('dashboard').classList.add('hidden')
+            document.getElementById('auth').classList.remove('hidden')
+            return
+        }
+
         document.getElementById('dashboard').classList.remove('hidden')
         document.getElementById('auth').classList.add('hidden')
-    }
-
-    const showAuthPage = () => {
-        document.getElementById('dashboard').classList.add('hidden')
-        document.getElementById('auth').classList.remove('hidden')
     }
 
     return {
@@ -112,8 +120,7 @@ const Auth = () => {
         isLoggedIn,
         logout,
         retrieveAccountInfo,
-        hideAuthPage,
-        showAuthPage,
+        toggleAuthPage,
     }
 }
 
@@ -131,98 +138,133 @@ const classNames = (...strings) => {
 }
 
 /* ---
-    SlideOver - Helpers functions to handle slide overs
+    Slideover - Helpers functions to handle slide overs
 --- */
 
-const labelStyles = classNames('text-sm font-medium text-gray-700')
+const Slideover = () => {
 
-const requiredStyles = classNames('text-xs text-red-600 font-semibold')
+    const labelStyles = classNames('text-sm font-medium text-gray-700')
 
-const inputStyles = classNames(
-    'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
-    'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
-)
+    const requiredStyles = classNames('text-xs text-red-600 font-semibold')
 
-/**
- * Show / Hide a component in DOM
- * @param {string} id
- */
-const showHideComponent = (id) => {
-    if (document.getElementById(id).classList.contains('hidden')) {
-        document.getElementById(id).classList.remove('hidden')
-    } else {
-        document.getElementById(id).classList.add('hidden')
-    }
-}
+    const inputStyles = classNames(
+        'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
+        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
+    )
 
-/**
- * Show / Hide form slide over
- */
-const showHideSlideOver = () => {
-    const components = ['form-slideover', 'form-shadow', 'form-lock']
-
-    components.forEach((component) => {
-        showHideComponent(component)
-    })
-}
-
-/**
- * Handle SlideOver Events such as clicks
- */
-const handleSlideOverClickEvents = () => {
-    document
-        .getElementById('form-btn-close')
-        .addEventListener('click', showHideSlideOver)
-    document
-        .getElementById('module-btn-action')
-        .addEventListener('click', showHideSlideOver)
-}
-
-/**
- * Create form in DOM
- *
- * @param {Array<{label: string, id: string, required: boolean}>} fields
- */
-const createForm = (fields) => {
-    const container = document.getElementById('form-container')
-
-    const dummyContainer = document.createElement('div')
-
-    fields.map((field) => {
-        const section = document.createElement('section')
-        section.className = 'mb-4'
-
-        const label = document.createElement('label')
-        label.htmlFor = field.label.toLowerCase()
-        label.className = labelStyles
-        label.innerHTML = field.label
-
-        const required = document.createElement('span')
-        required.className = requiredStyles
-        required.innerHTML = 'Required'
-
-        const flex = document.createElement('div')
-        flex.className = 'flex justify-between'
-        flex.appendChild(label)
-        field.required ? flex.appendChild(required) : null
-
-        const input = document.createElement('input')
-        input.type = 'text'
-        input.id = field.id
-        input.className = inputStyles
-        input.required = field.required
-
-        section.appendChild(flex)
-        section.appendChild(input)
-
-        dummyContainer.appendChild(section)
-    })
-
-    if (container.hasChildNodes()) {
-        container.removeChild(container.lastChild)
+    /**
+     * Show / Hide a component in DOM
+     * @param {string} id
+     */
+    const toggleComponent = (id) => {
+        if (document.getElementById(id).classList.contains('hidden')) {
+            document.getElementById(id).classList.remove('hidden')
+        } else {
+            document.getElementById(id).classList.add('hidden')
+        }
     }
 
-    container.appendChild(dummyContainer)
+    /**
+     * Show / Hide form slideover
+     */
+    const toggleSlideover = () => {
+        const components = ['form-slideover', 'form-shadow', 'form-lock']
+
+        components.forEach((component) => {
+            toggleComponent(component)
+        })
+    }
+
+    /**
+     * Handle SlideOver Events such as clicks
+     */
+    const handleClickEvents = () => {
+        document
+            .getElementById('form-btn-close')
+            .addEventListener('click', toggleSlideover)
+        document
+            .getElementById('module-btn-action')
+            .addEventListener('click', toggleSlideover)
+    }
+
+    const setError = (error) => {
+        const slideover = document.getElementById('slideover-error')
+        slideover.innerHTML = error ?? ''
+
+        toggleComponent('slideover-error')
+    }
+
+    /**
+     * Get form container as json object
+     * @return string
+     */
+    const getJsonForm = () => {
+        const element = {}
+
+        const container = document.getElementById('form-container').firstElementChild.childNodes
+        container.forEach((field) => {
+            if (field.lastElementChild.value !== '') {
+                element[field.lastElementChild.id] = field.lastElementChild.value
+            }
+        })
+
+        return JSON.stringify(element)
+    }
+
+    /**
+     * Create form in DOM
+     *
+     * @param {Array<{label: string, id: string, required: boolean}>} fields
+     */
+    const createForm = (fields) => {
+        const container = document.getElementById('form-container')
+
+        const dummyContainer = document.createElement('div')
+
+        fields.map((field) => {
+            const section = document.createElement('section')
+            section.className = 'mb-4'
+
+            const label = document.createElement('label')
+            label.htmlFor = field.label.toLowerCase()
+            label.className = labelStyles
+            label.innerHTML = field.label
+
+            const required = document.createElement('span')
+            required.className = requiredStyles
+            required.innerHTML = 'Required'
+
+            const flex = document.createElement('div')
+            flex.className = 'flex justify-between'
+            flex.appendChild(label)
+            field.required ? flex.appendChild(required) : null
+
+            const input = document.createElement('input')
+            input.type = 'text'
+            input.id = field.id
+            input.className = inputStyles
+            input.required = field.required
+
+            section.appendChild(flex)
+            section.appendChild(input)
+
+            dummyContainer.appendChild(section)
+        })
+
+        if (container.hasChildNodes()) {
+            container.removeChild(container.lastChild)
+        }
+
+        container.appendChild(dummyContainer)
+    }
+
+    return {
+        handleClickEvents,
+        toggleSlideover,
+        setError,
+        getJsonForm,
+        createForm,
+    }
 }
 
 /* ---
@@ -411,66 +453,63 @@ const EmptyState = () => {
 }
 
 /* ---
+    Sidebar
+--- */
+
+const Sidebar = () => {
+    const sidebarStyles = classNames(
+        'w-full flex items-center px-3 py-2',
+        'text-sm font-medium text-gray-700',
+        'rounded-md hover:text-gray-900 hover:bg-gray-50')
+
+    const appendModules = (modules, id) => {
+        const element = document.getElementById(id)
+
+        modules.forEach((module) => {
+            const btn = document.createElement('button')
+            btn.className = sidebarStyles
+            btn.onclick = module.onClick
+            btn.innerHTML = module.label
+
+            element.appendChild(btn)
+        })
+    }
+
+    return {
+        appendModules,
+    }
+}
+
+/* ---
     Logic to load a module
 --- */
 
 const Module = () => {
     /**
-     * Load module
-     *
-     * @param {string} module
-     * @return {Promise}
-     */
-    const loadModule = (module) => {
-        return new Promise((resolve, reject) => {
-            switch (module) {
-                case 'customers':
-                    Customers().init()
-                    return resolve()
-                case 'employees':
-                    Employees().init()
-                    return resolve()
-                case 'purchases':
-                    Purchases().init()
-                    return resolve()
-                case 'books':
-                    Books().init()
-                    return resolve()
-                default:
-                    return reject('Module not found!')
-            }
-        })
-    }
-
-    /**
      * Set labels and events listeners to a module
      * @param {string} moduleLabel
-     * @param {string} slideOverLabel
+     * @param {string} slideoverLabel
      * @param {function} cb
      */
-    const initModule = (moduleLabel, slideOverLabel, cb) => {
+    const init = (moduleLabel, slideoverLabel, cb) => {
         document.getElementById('module-label').innerHTML = moduleLabel
-        document.getElementById('module-btn-action').innerHTML = slideOverLabel
-        document.getElementById('slideover-label').innerHTML = slideOverLabel
+        document.getElementById('module-btn-action').innerHTML = slideoverLabel
+        document.getElementById('slideover-label').innerHTML = slideoverLabel
         document.getElementById('form-submit-btn').onclick = cb
     }
 
     return {
-        loadModule,
-        initModule,
+        init,
     }
 }
-
 
 /* ---
     Modules Declaration
 --- */
 
-const API_URL = 'http://localhost:3000/api'
-
 const Customers = () => {
     const init = () => {
-        Module().initModule('Customers', 'New Customer', onFormSubmission)
+        Module().init('Customers', 'New Customer', onFormSubmission)
 
         fetchCustomers()
         renderForm()
@@ -478,32 +517,20 @@ const Customers = () => {
 
     const renderForm = () => {
         const fields = [
-            {
-                label: 'Reader Card Number',
-                id: 'reader_card_num',
-                required: true,
-            },
+            { label: 'Reader Card Number', id: 'reader_card_num', required: true },
             { label: 'Name', id: 'name', required: true },
             { label: 'Phone', id: 'cell_phone', required: false },
             { label: 'Birth Date', id: 'birth_date', required: false },
             { label: 'Gender', id: 'gender', required: false },
             { label: 'Country', id: 'country', required: false },
             { label: 'Postal Code', id: 'postal_code', required: false },
-            {
-                label: 'Billing Address',
-                id: 'billing_address',
-                required: false,
-            },
-            {
-                label: 'Residence Address',
-                id: 'residence_address',
-                required: false,
-            },
+            { label: 'Billing Address', id: 'billing_address', required: false },
+            { label: 'Residence Address', id: 'residence_address', required: false },
             { label: 'NIF', id: 'nif', required: false },
             { label: 'Profession', id: 'profession', required: false },
         ]
 
-        createForm(fields)
+        Slideover().createForm(fields)
     }
 
     const actions = [
@@ -539,19 +566,6 @@ const Customers = () => {
             })
     }
 
-    const makeJsonObject = () => {
-        const element = {}
-
-        const container = document.getElementById('form-container').firstElementChild.childNodes
-        container.forEach((field) => {
-            if (field.lastElementChild.value !== '') {
-                element[field.lastElementChild.id] = field.lastElementChild.value
-            }
-        })
-
-        return element
-    }
-
     const onFormSubmission = async () => {
         console.log('sub')
 
@@ -561,21 +575,17 @@ const Customers = () => {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(makeJsonObject()),
+            body: Slideover().getJsonForm(),
         })
             .then((raw) => raw.json())
             .then((res) => {
-                const error_label = document.getElementById('slideover-error')
-                if (!res['error']) {
-                    if (error_label.classList.contains('hidden') !== true) {
-                        error_label.classList.add('hidden')
-                    }
-
-                    showHideSlideOver()
-                } else {
-                    error_label.innerHTML = res['error']
-                    error_label.classList.remove('hidden')
+                if (res['error']) {
+                    Slideover().setError(res['error'])
+                    return
                 }
+
+                Slideover().toggleSlideover()
+                Slideover().setError(null)
             })
     }
 
@@ -611,7 +621,7 @@ const Customers = () => {
 
 const Employees = () => {
     const init = () => {
-        Module().initModule('Employees', 'New Employee', onFormSubmission)
+        Module().init('Employees', 'New Employee', onFormSubmission)
 
         renderForm()
         fetchEmployees()
@@ -629,25 +639,13 @@ const Employees = () => {
             { label: 'Address', id: 'address', required: false },
         ]
 
-        createForm(fields)
+        Slideover().createForm(fields)
     }
 
     const actions = [
-        {
-            label: 'View',
-            color: 'text-indigo-600',
-            cb: () => console.log('clicked'),
-        },
-        {
-            label: 'Edit',
-            color: 'text-yellow-600',
-            cb: () => console.log('clicked'),
-        },
-        {
-            label: 'View',
-            color: 'text-indigo-600',
-            cb: () => console.log('clicked'),
-        },
+        { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+        { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
+        { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
     ]
 
     const fetchEmployees = () => {
@@ -670,7 +668,7 @@ const Employees = () => {
 
 const Books = () => {
     const init = () => {
-        Module().initModule('Books', 'New Book', onFormSubmission)
+        Module().init('Books', 'New Book', onFormSubmission)
 
         renderForm()
         onModuleLoad()
@@ -683,26 +681,14 @@ const Books = () => {
             { label: 'Stock Second Hand', id: 'stock_used', required: true },
         ]
 
-        createForm(fields)
+        Slideover().createForm(fields)
     }
 
     const onModuleLoad = () => {
         const actions = [
-            {
-                label: 'View',
-                color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: () => console.log('clicked'),
-            },
+            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
+            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
         ]
 
         fetch(API_URL + '/books')
@@ -729,7 +715,7 @@ const Books = () => {
 
 const Purchases = () => {
     const init = () => {
-        Module().initModule('Purchases', 'New Purchase', onFormSubmission)
+        Module().init('Purchases', 'New Purchase', onFormSubmission)
 
         renderForm()
         fetchPurchases()
@@ -745,21 +731,9 @@ const Purchases = () => {
 
     const fetchPurchases = () => {
         const actions = [
-            {
-                label: 'View',
-                color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: () => console.log('clicked'),
-            },
+            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
+            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
         ]
 
         fetch(API_URL + '/purchases')
