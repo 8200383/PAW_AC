@@ -19,7 +19,9 @@ const createBook = async (req, res, next) => {
             res.status(200).json({ added_book: schema })
         })
         .catch((e) => {
-            next(e)
+            const error = new Error(e.message)
+            error.status = 400
+            next(error)
         })
 }
 
@@ -31,6 +33,7 @@ const createBook = async (req, res, next) => {
  * @returns {Promise<Object>}
  */
 const createSchema = async (body, book) => {
+    verifyFields(book)
     return {
         isbn: body.isbn,
         title: book.title,
@@ -50,6 +53,24 @@ const createSchema = async (body, book) => {
             small_thumbnail: book.imageLinks.smallThumbnail,
             thumbnail: book.imageLinks.thumbnail,
         },
+    }
+}
+
+const verifyFields = (book) => {
+    if (book.publisher == undefined) {
+        book.publisher = ''
+    }
+    if (book.description == undefined) {
+        book.description = ''
+    }
+    if (book.imageLinks == undefined) {
+        book.imageLinks = ''
+    }
+    if (book.imageLinks.smallThumbnail == undefined) {
+        book.imageLinks.smallThumbnail = ''
+    }
+    if (book.imageLinks.thumbnail == undefined) {
+        book.imageLinks.thumbnail = ''
     }
 }
 
@@ -175,7 +196,7 @@ const updatePrice = async (isbn, price, type) => {
  * @param {Request} req
  * @param {Response} res
  * @param {NextFunction} next
- * 
+ *
  */
 const patchBook = async (req, res, next) => {
     try {

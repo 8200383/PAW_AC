@@ -16,7 +16,7 @@ const bookSchema = new Schema({
     },
     publisher: {
         type: String,
-        required: true,
+        required: false,
     },
     published_date: {
         type: String,
@@ -77,11 +77,11 @@ const bookSchema = new Schema({
     images: {
         small_thumbnail: {
             type: String,
-            required: true,
+            required: false,
         },
         thumbnail: {
             type: String,
-            required: true,
+            required: false,
         },
     },
     created_at: {

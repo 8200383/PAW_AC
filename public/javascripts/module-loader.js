@@ -25,9 +25,11 @@ const onDocumentLoad = async () => {
     Sidebar().appendModules(modules, 'mobile-sidebar')
 
     if (Auth().isLoggedIn()) {
-        await Auth().retrieveAccountInfo(localStorage.getItem('email')).then(() => {
-            console.log('[!] Account Information Loaded')
-        })
+        await Auth()
+            .retrieveAccountInfo(localStorage.getItem('email'))
+            .then(() => {
+                console.log('[!] Account Information Loaded')
+            })
 
         Customers().init()
     }
@@ -40,7 +42,6 @@ document.addEventListener('DOMContentLoaded', onDocumentLoad)
 --- */
 
 const Auth = () => {
-
     const handleClickEvents = () => {
         document.getElementById('auth-btn').addEventListener('click', onAuth)
         document.getElementById('logout-btn').addEventListener('click', logout)
@@ -99,7 +100,8 @@ const Auth = () => {
         })
             .then((raw) => raw.json())
             .then((res) => {
-                document.getElementById('email-account').innerHTML = res['email']
+                document.getElementById('email-account').innerHTML =
+                    res['email']
                 document.getElementById('role').innerHTML = res['role']
             })
     }
@@ -142,14 +144,13 @@ const classNames = (...strings) => {
 --- */
 
 const Slideover = () => {
-
     const labelStyles = classNames('text-sm font-medium text-gray-700')
 
     const requiredStyles = classNames('text-xs text-red-600 font-semibold')
 
     const inputStyles = classNames(
         'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
-        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
+        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
     )
 
     /**
@@ -201,10 +202,13 @@ const Slideover = () => {
     const getJsonForm = () => {
         const element = {}
 
-        const container = document.getElementById('form-container').firstElementChild.childNodes
+        const container =
+            document.getElementById('form-container').firstElementChild
+                .childNodes
         container.forEach((field) => {
             if (field.lastElementChild.value !== '') {
-                element[field.lastElementChild.id] = field.lastElementChild.value
+                element[field.lastElementChild.id] =
+                    field.lastElementChild.value
             }
         })
 
@@ -272,11 +276,15 @@ const Slideover = () => {
 --- */
 
 const Table = () => {
-    const rowStyles = classNames('px-6 py-3 whitespace-nowrap text-sm text-gray-800')
+    const rowStyles = classNames(
+        'px-6 py-3 whitespace-nowrap text-sm text-gray-800'
+    )
 
     const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
 
-    const rowActionsStyles = classNames('py-3 px-1 whitespace-nowrap text-sm font-medium')
+    const rowActionsStyles = classNames(
+        'py-3 px-1 whitespace-nowrap text-sm font-medium'
+    )
 
     const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
 
@@ -285,7 +293,7 @@ const Table = () => {
     const thStyles = classNames(
         'px-6 py-3 border-b border-gray-200 bg-gray-50',
         'text-left text-xs font-medium text-gray-500',
-        'uppercase tracking-wider',
+        'uppercase tracking-wider'
     )
 
     /**
@@ -428,7 +436,6 @@ const extractColumns = (firstRow) => {
 --- */
 
 const EmptyState = () => {
-
     const render = (msg) => {
         const p = document.createElement('p')
         p.className = 'text-xl font-medium text-gray-600'
@@ -460,7 +467,8 @@ const Sidebar = () => {
     const sidebarStyles = classNames(
         'w-full flex items-center px-3 py-2',
         'text-sm font-medium text-gray-700',
-        'rounded-md hover:text-gray-900 hover:bg-gray-50')
+        'rounded-md hover:text-gray-900 hover:bg-gray-50'
+    )
 
     const appendModules = (modules, id) => {
         const element = document.getElementById(id)
@@ -517,15 +525,27 @@ const Customers = () => {
 
     const renderForm = () => {
         const fields = [
-            { label: 'Reader Card Number', id: 'reader_card_num', required: true },
+            {
+                label: 'Reader Card Number',
+                id: 'reader_card_num',
+                required: true,
+            },
             { label: 'Name', id: 'name', required: true },
             { label: 'Phone', id: 'cell_phone', required: false },
             { label: 'Birth Date', id: 'birth_date', required: false },
             { label: 'Gender', id: 'gender', required: false },
             { label: 'Country', id: 'country', required: false },
             { label: 'Postal Code', id: 'postal_code', required: false },
-            { label: 'Billing Address', id: 'billing_address', required: false },
-            { label: 'Residence Address', id: 'residence_address', required: false },
+            {
+                label: 'Billing Address',
+                id: 'billing_address',
+                required: false,
+            },
+            {
+                label: 'Residence Address',
+                id: 'residence_address',
+                required: false,
+            },
             { label: 'NIF', id: 'nif', required: false },
             { label: 'Profession', id: 'profession', required: false },
         ]
@@ -643,9 +663,21 @@ const Employees = () => {
     }
 
     const actions = [
-        { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
-        { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
-        { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
+        {
+            label: 'View',
+            color: 'text-indigo-600',
+            cb: () => console.log('clicked'),
+        },
+        {
+            label: 'Edit',
+            color: 'text-yellow-600',
+            cb: () => console.log('clicked'),
+        },
+        {
+            label: 'View',
+            color: 'text-indigo-600',
+            cb: () => console.log('clicked'),
+        },
     ]
 
     const fetchEmployees = () => {
@@ -658,8 +690,7 @@ const Employees = () => {
             })
     }
 
-    const onFormSubmission = () => {
-    }
+    const onFormSubmission = () => {}
 
     return {
         init,
@@ -679,6 +710,8 @@ const Books = () => {
             { label: 'ISBN', id: 'isbn', required: true },
             { label: 'Stock New', id: 'stock_new', required: true },
             { label: 'Stock Second Hand', id: 'stock_used', required: true },
+            { label: 'Price New', id: 'price_new', required: true },
+            { label: 'Price Second Hand', id: 'price_used', required: true },
         ]
 
         Slideover().createForm(fields)
@@ -686,21 +719,65 @@ const Books = () => {
 
     const onModuleLoad = () => {
         const actions = [
-            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
-            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
-            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
+            {
+                label: 'View',
+                color: 'text-indigo-600',
+                cb: () => console.log('clicked'),
+            },
+            {
+                label: 'Edit',
+                color: 'text-yellow-600',
+                cb: () => console.log('clicked'),
+            },
+            {
+                label: 'Delete',
+                color: 'text-red-600',
+                cb: () => console.log('clicked'),
+            },
         ]
 
         fetch(API_URL + '/books')
             .then((res) => res.json())
             .then((raw) => raw['books'])
             .then((rows) => {
+                if (rows.length === 0) {
+                    EmptyState().render('There is no books yet!')
+                    return
+                }
+
                 const columns = extractColumns(rows[0])
                 Table().render(columns, rows, actions)
             })
     }
 
-    const onFormSubmission = () => {
+    const onFormSubmission = async () => {
+        const response = await fetch(API_URL + '/books', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                isbn: document.getElementById('isbn').value,
+                stock_new: document.getElementById('stock_new').value,
+                stock_used: document.getElementById('stock_used').value,
+                price_new: document.getElementById('price_new').value,
+                price_used: document.getElementById('price_used').value,
+            }),
+        })
+            .then((raw) => raw.json())
+            .then((res) => {
+                if (res['error']) {
+                    Slideover().setError(res['error'])
+                    return
+                }
+
+                Slideover().toggleSlideover()
+                Slideover().setError(null)
+            })
+            .then(() => {
+                onModuleLoad()
+            })
     }
 
     return {
@@ -711,7 +788,6 @@ const Books = () => {
 /* ---
     Purchase - Add new book
 --- */
-
 
 const Purchases = () => {
     const init = () => {
@@ -731,23 +807,39 @@ const Purchases = () => {
 
     const fetchPurchases = () => {
         const actions = [
-            { label: 'View', color: 'text-indigo-600', cb: () => console.log('clicked') },
-            { label: 'Edit', color: 'text-yellow-600', cb: () => console.log('clicked') },
-            { label: 'Delete', color: 'text-red-600', cb: () => console.log('clicked') },
+            {
+                label: 'View',
+                color: 'text-indigo-600',
+                cb: () => console.log('clicked'),
+            },
+            {
+                label: 'Edit',
+                color: 'text-yellow-600',
+                cb: () => console.log('clicked'),
+            },
+            {
+                label: 'Delete',
+                color: 'text-red-600',
+                cb: () => console.log('clicked'),
+            },
         ]
 
         fetch(API_URL + '/purchases')
             .then((res) => res.json())
             .then((raw) => raw['purchases'])
             .then((rows) => {
+                if (rows.length === 0) {
+                    EmptyState().render('There is no purchases yet!')
+                    return
+                }
+
                 const columns = extractColumns(rows[0])
                 Table().render(columns, rows, actions)
             })
             .then(() => handlePurchaseClickEvents())
     }
 
-    const onFormSubmission = () => {
-    }
+    const onFormSubmission = () => {}
 
     return {
         init,
@@ -761,13 +853,16 @@ const handlePurchaseClickEvents = () => {
 
 const removeIsbn = (button) => {
     button.addEventListener('click', () => {
-        if (button.parentElement.parentElement.parentElement.childElementCount === 1) {
+        if (
+            button.parentElement.parentElement.parentElement
+                .childElementCount === 1
+        ) {
             document.getElementById('form-submit-btn').disabled = true
             document
                 .getElementById('form-submit-btn')
                 .setAttribute(
                     'class',
-                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
+                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
                 )
         }
         button.parentElement.parentElement.remove()
@@ -782,7 +877,7 @@ const addIsbn = () => {
             .getElementById('form-submit-btn')
             .setAttribute(
                 'class',
-                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
+                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
             )
     })
 }
@@ -792,7 +887,7 @@ const resetForm = () => {
         .getElementById('module-btn-action')
         .addEventListener('click', () => {
             document.getElementById(
-                'form-container',
+                'form-container'
             ).firstElementChild.firstElementChild.innerHTML = ''
             document.getElementById('add-isbn').click()
         })
@@ -830,7 +925,7 @@ const appendIsbnForm = () => {
     let isbnInput = document.createElement('input')
     isbnInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
     )
     isbnInput.setAttribute('type', 'text')
     isbnInput.setAttribute('name', 'isbn')
@@ -851,7 +946,7 @@ const appendIsbnForm = () => {
     let typeSelect = document.createElement('select')
     typeSelect.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
     )
     typeSelect.setAttribute('name', 'book-type')
 
@@ -881,7 +976,7 @@ const appendIsbnForm = () => {
     let qntInput = document.createElement('input')
     qntInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
     )
     qntInput.setAttribute('name', 'quantity')
     qntInput.setAttribute('type', 'number')
@@ -901,7 +996,7 @@ const appendIsbnForm = () => {
     let removeButton = document.createElement('button')
     removeButton.setAttribute(
         'class',
-        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
+        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
     )
     removeButton.setAttribute('type', 'button')
     removeButton.setAttribute('name', 'remove-isbn')
