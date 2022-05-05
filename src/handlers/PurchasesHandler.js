@@ -229,7 +229,7 @@ const getAllPurchases = async (req, res, next) => {
                 return {
                     books: await handleBooks(purchases.books),
                     type: purchases.type,
-                    customer: purchases.customer,
+                    customer: await handleCustomer(purchases.customer),
                     spent_balance: purchases.spent_balance,
                     payment_method: purchases.payment_method,
                     subtotal: purchases.subtotal,
@@ -246,6 +246,12 @@ const getAllPurchases = async (req, res, next) => {
     }
 }
 
+/**
+ * Parse the books _id to isbn
+ *
+ * @param {Array} books
+ * @returns {Promise<Object>}
+ */
 const handleBooks = async (books) => {
     var parsedBooks = []
 
@@ -259,6 +265,24 @@ const handleBooks = async (books) => {
         }
     }
     return parsedBooks
+}
+
+/**
+ * Parse the customer _id to reader_card_num
+ *
+ * @param {Object} customer
+ * @returns {Promise<Object>}
+ */
+const handleCustomer = async (customer) => {
+    var parsedCustomer = JSON.parse(JSON.stringify(customer))
+
+    try {
+        var customerData = await Customer.findOne({ _id: customer })
+        parsedCustomer = customerData.reader_card_num
+    } catch (e) {
+        throw e
+    }
+    return parsedCustomer
 }
 
 /**
