@@ -150,7 +150,7 @@ const Slideover = () => {
 
     const inputStyles = classNames(
         'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
-        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
+        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
     )
 
     /**
@@ -199,12 +199,18 @@ const Slideover = () => {
     const getJsonForm = () => {
         const element = {}
 
-        const container = document.getElementById('form-container').firstElementChild.childNodes
+        const container =
+            document.getElementById('form-container').firstElementChild
+                .childNodes
 
         container.forEach((field) => {
             if (field.lastElementChild.value !== '') {
-                element[field.lastElementChild.id] = field.lastElementChild.value
-            } else if (field.lastElementChild.value === '' && field.lastElementChild.required) {
+                element[field.lastElementChild.id] =
+                    field.lastElementChild.value
+            } else if (
+                field.lastElementChild.value === '' &&
+                field.lastElementChild.required
+            ) {
                 element[field.lastElementChild.id] = null
             }
         })
@@ -304,13 +310,13 @@ const Slideover = () => {
 
 const Table = () => {
     const rowStyles = classNames(
-        'px-6 py-3 whitespace-nowrap text-sm text-gray-800',
+        'px-6 py-3 whitespace-nowrap text-sm text-gray-800'
     )
 
     const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
 
     const rowActionsStyles = classNames(
-        'py-3 px-1 whitespace-nowrap text-sm font-medium',
+        'py-3 px-1 whitespace-nowrap text-sm font-medium'
     )
 
     const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
@@ -320,7 +326,7 @@ const Table = () => {
     const thStyles = classNames(
         'px-6 py-3 border-b border-gray-200 bg-gray-50',
         'text-left text-xs font-medium text-gray-500',
-        'uppercase tracking-wider',
+        'uppercase tracking-wider'
     )
 
     /**
@@ -404,7 +410,7 @@ const Table = () => {
                 const td = document.createElement('td')
                 td.className = classNames(
                     rowStyles,
-                    Array.isArray(field) ? 'flex flex-col space-x-2' : null,
+                    Array.isArray(field) ? 'flex flex-col space-x-2' : null
                 )
 
                 if (Array.isArray(field)) {
@@ -531,7 +537,7 @@ const Sidebar = () => {
     const sidebarStyles = classNames(
         'w-full flex items-center px-3 py-2',
         'text-sm font-medium text-gray-700',
-        'rounded-md hover:text-gray-900 hover:bg-gray-50',
+        'rounded-md hover:text-gray-900 hover:bg-gray-50'
     )
 
     const appendModules = (modules, id) => {
@@ -587,7 +593,11 @@ const Customers = () => {
 
     const onCreateCustomer = () => {
         const fields = [
-            { label: 'Reader Card Number', id: 'reader_card_num', required: true },
+            {
+                label: 'Reader Card Number',
+                id: 'reader_card_num',
+                required: true,
+            },
             { label: 'Name', id: 'name', required: true },
             { label: 'Phone', id: 'cell_phone' },
             { label: 'Birth Date', id: 'birth_date' },
@@ -666,7 +676,13 @@ const Customers = () => {
             .then((customer) => {
                 const entries = Object.entries(customer)
                     .filter(([key]) => {
-                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+                        const dontShow = [
+                            '_id',
+                            '__v',
+                            'created_at',
+                            'updated_at',
+                            'update_at',
+                        ]
 
                         return !dontShow.includes(key)
                     })
@@ -675,7 +691,12 @@ const Customers = () => {
                     })
 
                 Slideover().toggleSlideover()
-                Slideover().renderForm('Customer', entries, true, onFormSubmission)
+                Slideover().renderForm(
+                    'Customer',
+                    entries,
+                    true,
+                    onFormSubmission
+                )
             })
     }
 
@@ -687,7 +708,13 @@ const Customers = () => {
             .then((customer) => {
                 const entries = Object.entries(customer)
                     .filter(([key]) => {
-                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+                        const dontShow = [
+                            '_id',
+                            '__v',
+                            'created_at',
+                            'updated_at',
+                            'update_at',
+                        ]
 
                         return !dontShow.includes(key)
                     })
@@ -695,7 +722,9 @@ const Customers = () => {
                         return { label: key, id: key, value: value }
                     })
 
-                Slideover().renderForm('Edit Customer', entries, false, () => console.log('edit customer'))
+                Slideover().renderForm('Edit Customer', entries, false, () =>
+                    console.log('edit customer')
+                )
                 Slideover().toggleSlideover()
             })
     }
@@ -782,7 +811,13 @@ const Employees = () => {
             .then((employee) => {
                 const entries = Object.entries(employee)
                     .filter(([key]) => {
-                        const dontShow = ['_id', '__v', 'created_at', 'update_at', 'updated_at']
+                        const dontShow = [
+                            '_id',
+                            '__v',
+                            'created_at',
+                            'update_at',
+                            'updated_at',
+                        ]
 
                         return !dontShow.includes(key)
                     })
@@ -803,7 +838,13 @@ const Employees = () => {
             .then((employee) => {
                 const entries = Object.entries(employee)
                     .filter(([key]) => {
-                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+                        const dontShow = [
+                            '_id',
+                            '__v',
+                            'created_at',
+                            'updated_at',
+                            'update_at',
+                        ]
 
                         return !dontShow.includes(key)
                     })
@@ -811,7 +852,9 @@ const Employees = () => {
                         return { label: key, id: key, value: value }
                     })
 
-                Slideover().renderForm('Edit Employee', entries, false, () => console.log('edit employee'))
+                Slideover().renderForm('Edit Employee', entries, false, () =>
+                    console.log('edit employee')
+                )
                 Slideover().toggleSlideover()
             })
     }
@@ -932,7 +975,13 @@ const Books = () => {
             .then((book) => {
                 const entries = Object.entries(book)
                     .filter(([key]) => {
-                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+                        const dontShow = [
+                            '_id',
+                            '__v',
+                            'created_at',
+                            'updated_at',
+                            'update_at',
+                        ]
 
                         return !dontShow.includes(key)
                     })
@@ -969,6 +1018,14 @@ const Purchases = () => {
             .then((text) => {
                 document.getElementById('form-container').innerHTML = text
             })
+            .then(() => Slideover().toggleSlideover())
+            .then(() => {
+                handlePurchaseClickEvents()
+                document.getElementById('add-isbn').click()
+                document.getElementById('form-submit-btn').addEventListener('click', () => {
+                    onFormSubmission()
+                })
+            })
     }
 
     const fetchPurchases = () => {
@@ -993,10 +1050,9 @@ const Purchases = () => {
                 Table().customRender(
                     Table().addColumns(columns),
                     Table().addRowsWithChildren(rows),
-                    actions,
+                    actions
                 )
             })
-            .then(() => handlePurchaseClickEvents())
     }
 
     const handleBooks = () => {
@@ -1036,7 +1092,7 @@ const Purchases = () => {
             body: JSON.stringify({
                 customer: '125', //brute force
                 books: handleBooks(),
-                payment_method:  document.getElementById('payment-method').value,
+                payment_method: document.getElementById('payment-method').value,
                 spent_balance: document.getElementById('points').value,
             }),
         })
@@ -1076,7 +1132,7 @@ const removeIsbn = (button) => {
                 .getElementById('form-submit-btn')
                 .setAttribute(
                     'class',
-                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
+                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
                 )
         }
         button.parentElement.parentElement.remove()
@@ -1091,7 +1147,7 @@ const addIsbn = () => {
             .getElementById('form-submit-btn')
             .setAttribute(
                 'class',
-                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
+                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
             )
     })
 }
@@ -1101,7 +1157,7 @@ const resetForm = () => {
         .getElementById('module-btn-action')
         .addEventListener('click', () => {
             document.getElementById(
-                'form-container',
+                'form-container'
             ).firstElementChild.firstElementChild.innerHTML = ''
             document.getElementById('add-isbn').click()
         })
@@ -1139,7 +1195,7 @@ const appendIsbnForm = () => {
     let isbnInput = document.createElement('input')
     isbnInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
     )
     isbnInput.setAttribute('type', 'text')
     isbnInput.setAttribute('name', 'isbn')
@@ -1160,7 +1216,7 @@ const appendIsbnForm = () => {
     let typeSelect = document.createElement('select')
     typeSelect.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
     )
     typeSelect.setAttribute('name', 'book-type')
 
@@ -1190,7 +1246,7 @@ const appendIsbnForm = () => {
     let qntInput = document.createElement('input')
     qntInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
     )
     qntInput.setAttribute('name', 'quantity')
     qntInput.setAttribute('type', 'number')
@@ -1210,7 +1266,7 @@ const appendIsbnForm = () => {
     let removeButton = document.createElement('button')
     removeButton.setAttribute(
         'class',
-        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
+        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
     )
     removeButton.setAttribute('type', 'button')
     removeButton.setAttribute('name', 'remove-isbn')
