@@ -751,7 +751,7 @@ const Books = () => {
     }
 
     const onFormSubmission = async () => {
-        const response = await fetch(API_URL + '/books', {
+        await fetch(API_URL + '/books', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -839,7 +839,61 @@ const Purchases = () => {
             .then(() => handlePurchaseClickEvents())
     }
 
-    const onFormSubmission = () => {}
+    const handleBooks = () => {
+        var isbn = []
+        var type = []
+        var qnt = []
+        var books = []
+
+        document.getElementsByName('isbn').forEach((input) => {
+            isbn.push(input.value)
+        })
+        document.getElementsByName('book-type').forEach((input) => {
+            type.push(input.value)
+        })
+        document.getElementsByName('quantity').forEach((input) => {
+            qnt.push(input.value)
+        })
+
+        for (let i = 0; i < isbn.length; i++) {
+            const object = {
+                book: isbn[i],
+                type: type[i],
+                qnt: qnt[i],
+            }
+            books.push(object)
+        }
+        return books
+    }
+
+    const onFormSubmission = async () => {
+        await fetch(API_URL + '/purchases', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                customer: '125', //brute force
+                books: handleBooks(),
+                payment_method:  document.getElementById('payment-method').value,
+                spent_balance: document.getElementById('points').value,
+            }),
+        })
+            .then((raw) => raw.json())
+            .then((res) => {
+                if (res['error']) {
+                    Slideover().setError(res['error'])
+                    return
+                }
+
+                Slideover().toggleSlideover()
+                Slideover().setError(null)
+            })
+            .then(() => {
+                fetchPurchases()
+            })
+    }
 
     return {
         init,
@@ -951,11 +1005,11 @@ const appendIsbnForm = () => {
     typeSelect.setAttribute('name', 'book-type')
 
     let typeOptionNew = document.createElement('option')
-    typeOptionNew.setAttribute('value', 'stock_new')
+    typeOptionNew.setAttribute('value', 'New')
     typeOptionNew.innerHTML = 'New'
 
     let typeOptionUsed = document.createElement('option')
-    typeOptionUsed.setAttribute('value', 'stock_used')
+    typeOptionUsed.setAttribute('value', 'Used')
     typeOptionUsed.innerHTML = 'Used'
 
     typeDiv.append(typeLabel)

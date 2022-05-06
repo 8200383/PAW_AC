@@ -1,1 +1,1 @@
-module.exports = ['Male', 'Female', 'Non Binary']
+module.exports = ['Male', 'Female', 'Non Binary', null]

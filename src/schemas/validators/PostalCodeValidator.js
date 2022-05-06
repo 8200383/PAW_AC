@@ -6,6 +6,10 @@
  */
 const postalCodeValidator = async (postalCode) => {
     return new Promise((resolve, reject) => {
+        if (postalCode == null) {
+            return resolve(true)
+        }
+
         const expression = /^\d{4}(-\d{3})?$/
         const match = postalCode.match(expression)
 
