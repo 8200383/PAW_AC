@@ -671,7 +671,7 @@ const Customers = () => {
             .then((customer) => {
                 const entries = Object.entries(customer)
                     .filter(([key]) => {
-                        const dontShow = ['_id', '__v', 'created_at', 'updated_at']
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
 
                         return !dontShow.includes(key)
                     })
@@ -733,17 +733,17 @@ const Employees = () => {
         {
             label: 'View',
             color: 'text-indigo-600',
-            cb: () => console.log('clicked'),
+            cb: (event) => onView(event),
         },
         {
             label: 'Edit',
             color: 'text-yellow-600',
-            cb: () => console.log('clicked'),
+            cb: (event) => onEdit(event),
         },
         {
             label: 'Delete',
             color: 'text-red-600',
-            cb: () => console.log('clicked'),
+            cb: (event) => onDelete(event),
         },
     ]
 
@@ -755,6 +755,42 @@ const Employees = () => {
                 const columns = extractColumns(rows[0])
                 Table().render(columns, rows, actions)
             })
+    }
+
+    const onView = async (event) => {
+        const id = event.target.id
+
+        await fetch(API_URL + '/employee/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['employee'])
+            .then((employee) => {
+                const entries = Object.entries(employee)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'update_at', 'updated_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, value: value, disabled: true }
+                    })
+
+                Slideover().toggleSlideover()
+                Slideover().renderForm('Customer', entries, true)
+            })
+    }
+
+    const onEdit = (event) => {
+        console.log(event.target.id)
+    }
+
+    const onDelete = (event) => {
+        const id = event.target.id
+
+        fetch(API_URL + '/employee/' + id, {
+            method: 'DELETE',
+        }).then(() => {
+            event.target.parentElement.parentElement.remove()
+        })
     }
 
     const onFormSubmission = () => {
@@ -793,17 +829,7 @@ const Books = () => {
             {
                 label: 'View',
                 color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: () => console.log('clicked'),
+                cb: (event) => onView(event),
             },
         ]
 
@@ -847,6 +873,28 @@ const Books = () => {
                 Slideover().setError(null)
             })
             .then(() => onModuleLoad())
+    }
+
+    const onView = async (event) => {
+        const id = event.target.id
+
+        await fetch(API_URL + '/book/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['book'])
+            .then((book) => {
+                const entries = Object.entries(book)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, value: value, disabled: true }
+                    })
+
+                Slideover().toggleSlideover()
+                Slideover().renderForm('Customer', entries, true)
+            })
     }
 
     return {

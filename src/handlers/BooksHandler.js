@@ -1,5 +1,5 @@
 const { Request, Response, NextFunction } = require('express')
-const { Book } = require('../schemas')
+const { Book, Employee } = require('../schemas')
 const Isbn = require('node-isbn')
 
 /**
@@ -94,6 +94,22 @@ const bookExists = async (isbn) => {
 
     if (book != null) {
         throw Error('Book already exists.')
+    }
+}
+
+/**
+ * Get book
+ * @param {Request} req
+ * @param {Response} res
+ * @param {function} next
+ * @returns {Promise<void>}
+ */
+const getBook = async (req, res, next) => {
+    try {
+        const book = await Book.findOne({ isbn: req.params['isbn'] })
+        res.status(200).json({ book })
+    } catch (e) {
+        return next(e)
     }
 }
 
@@ -263,4 +279,5 @@ module.exports = {
     patchBook,
     getAllBooks,
     getCategories,
+    getBook,
 }
