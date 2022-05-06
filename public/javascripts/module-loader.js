@@ -174,6 +174,8 @@ const Slideover = () => {
         components.forEach((component) => {
             toggleComponent(component)
         })
+
+        setError()
     }
 
     /**
@@ -188,8 +190,6 @@ const Slideover = () => {
     const setError = (error) => {
         const slideover = document.getElementById('slideover-error')
         slideover.innerHTML = error ?? ''
-
-        toggleComponent('slideover-error')
     }
 
     /**
@@ -204,7 +204,7 @@ const Slideover = () => {
         container.forEach((field) => {
             if (field.lastElementChild.value !== '') {
                 element[field.lastElementChild.id] = field.lastElementChild.value
-            } else {
+            } else if (field.lastElementChild.value === '' && field.lastElementChild.required) {
                 element[field.lastElementChild.id] = null
             }
         })
@@ -654,7 +654,6 @@ const Customers = () => {
                 }
 
                 Slideover().toggleSlideover()
-                Slideover().setError(null)
             })
     }
 
@@ -844,7 +843,6 @@ const Employees = () => {
                 }
 
                 Slideover().toggleSlideover()
-                Slideover().setError(null)
             })
     }
 
@@ -921,7 +919,6 @@ const Books = () => {
                 }
 
                 Slideover().toggleSlideover()
-                Slideover().setError(null)
             })
             .then(() => onModuleLoad())
     }
@@ -962,7 +959,6 @@ const Purchases = () => {
         Module().init('Purchases', 'New Purchase')
 
         Slideover().setCreateBtnAction('New Purchase', onCreatePurchase)
-        Slideover().setSaveBtnAction(onFormSubmission)
 
         fetchPurchases()
     }
@@ -980,16 +976,6 @@ const Purchases = () => {
             {
                 label: 'View',
                 color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
                 cb: () => console.log('clicked'),
             },
         ]
@@ -1011,9 +997,6 @@ const Purchases = () => {
                 )
             })
             .then(() => handlePurchaseClickEvents())
-    }
-
-    const onFormSubmission = () => {
     }
 
     return {
