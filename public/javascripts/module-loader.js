@@ -150,7 +150,7 @@ const Slideover = () => {
 
     const inputStyles = classNames(
         'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
-        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
     )
 
     /**
@@ -277,13 +277,13 @@ const Slideover = () => {
 
 const Table = () => {
     const rowStyles = classNames(
-        'px-6 py-3 whitespace-nowrap text-sm text-gray-800'
+        'px-6 py-3 whitespace-nowrap text-sm text-gray-800',
     )
 
     const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
 
     const rowActionsStyles = classNames(
-        'py-3 px-1 whitespace-nowrap text-sm font-medium'
+        'py-3 px-1 whitespace-nowrap text-sm font-medium',
     )
 
     const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
@@ -293,7 +293,7 @@ const Table = () => {
     const thStyles = classNames(
         'px-6 py-3 border-b border-gray-200 bg-gray-50',
         'text-left text-xs font-medium text-gray-500',
-        'uppercase tracking-wider'
+        'uppercase tracking-wider',
     )
 
     /**
@@ -365,6 +365,40 @@ const Table = () => {
     }
 
     /**
+     * Add rows to the table but the columns with objects are children
+     * @param {{}[]} rows
+     * @return {HTMLTableRowElement[]}
+     */
+    const addRowsWithChildren = (rows) => {
+        return rows.map((row) => {
+            const tr = document.createElement('tr')
+
+            const html = Object.values(row).map((field) => {
+                const td = document.createElement('td')
+                td.className = classNames(
+                    rowStyles,
+                    Array.isArray(field) ? 'flex flex-col space-x-2' : null,
+                )
+
+                if (Array.isArray(field)) {
+                    const fields = field.map((o) => {
+                        return JSON.stringify(o)
+                    })
+
+                    td.append(...fields)
+                } else {
+                    td.innerHTML = field
+                }
+
+                return td
+            })
+
+            tr.append(...html)
+            return tr
+        })
+    }
+
+    /**
      * Renders a table with custom callback functions
      * @param {HTMLTableRowElement} columnsCallback
      * @param {HTMLTableRowElement[]} rowsCallback
@@ -419,6 +453,9 @@ const Table = () => {
     return {
         customRender,
         render,
+        addColumns,
+        addRows,
+        addRowsWithChildren,
     }
 }
 
@@ -467,7 +504,7 @@ const Sidebar = () => {
     const sidebarStyles = classNames(
         'w-full flex items-center px-3 py-2',
         'text-sm font-medium text-gray-700',
-        'rounded-md hover:text-gray-900 hover:bg-gray-50'
+        'rounded-md hover:text-gray-900 hover:bg-gray-50',
     )
 
     const appendModules = (modules, id) => {
@@ -690,7 +727,8 @@ const Employees = () => {
             })
     }
 
-    const onFormSubmission = () => {}
+    const onFormSubmission = () => {
+    }
 
     return {
         init,
@@ -834,12 +872,17 @@ const Purchases = () => {
                 }
 
                 const columns = extractColumns(rows[0])
-                Table().render(columns, rows, actions)
+                Table().customRender(
+                    Table().addColumns(columns),
+                    Table().addRowsWithChildren(rows),
+                    actions,
+                )
             })
             .then(() => handlePurchaseClickEvents())
     }
 
-    const onFormSubmission = () => {}
+    const onFormSubmission = () => {
+    }
 
     return {
         init,
@@ -862,7 +905,7 @@ const removeIsbn = (button) => {
                 .getElementById('form-submit-btn')
                 .setAttribute(
                     'class',
-                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
                 )
         }
         button.parentElement.parentElement.remove()
@@ -877,7 +920,7 @@ const addIsbn = () => {
             .getElementById('form-submit-btn')
             .setAttribute(
                 'class',
-                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
             )
     })
 }
@@ -887,7 +930,7 @@ const resetForm = () => {
         .getElementById('module-btn-action')
         .addEventListener('click', () => {
             document.getElementById(
-                'form-container'
+                'form-container',
             ).firstElementChild.firstElementChild.innerHTML = ''
             document.getElementById('add-isbn').click()
         })
@@ -925,7 +968,7 @@ const appendIsbnForm = () => {
     let isbnInput = document.createElement('input')
     isbnInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     isbnInput.setAttribute('type', 'text')
     isbnInput.setAttribute('name', 'isbn')
@@ -946,7 +989,7 @@ const appendIsbnForm = () => {
     let typeSelect = document.createElement('select')
     typeSelect.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     typeSelect.setAttribute('name', 'book-type')
 
@@ -976,7 +1019,7 @@ const appendIsbnForm = () => {
     let qntInput = document.createElement('input')
     qntInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     qntInput.setAttribute('name', 'quantity')
     qntInput.setAttribute('type', 'number')
@@ -996,7 +1039,7 @@ const appendIsbnForm = () => {
     let removeButton = document.createElement('button')
     removeButton.setAttribute(
         'class',
-        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
     )
     removeButton.setAttribute('type', 'button')
     removeButton.setAttribute('name', 'remove-isbn')
