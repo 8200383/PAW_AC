@@ -204,6 +204,8 @@ const Slideover = () => {
         container.forEach((field) => {
             if (field.lastElementChild.value !== '') {
                 element[field.lastElementChild.id] = field.lastElementChild.value
+            } else {
+                element[field.lastElementChild.id] = null
             }
         })
 
@@ -684,8 +686,25 @@ const Customers = () => {
             })
     }
 
-    const onEdit = (event) => {
-        console.log(event.target.id)
+    const onEdit = async (event) => {
+        const id = event.target.id
+        await fetch(API_URL + '/customer/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['customer'])
+            .then((customer) => {
+                const entries = Object.entries(customer)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, id: key, value: value }
+                    })
+
+                Slideover().renderForm('Edit Customer', entries, false)
+                Slideover().toggleSlideover()
+            })
     }
 
     const onDelete = (event) => {
@@ -784,8 +803,25 @@ const Employees = () => {
             })
     }
 
-    const onEdit = (event) => {
-        console.log(event.target.id)
+    const onEdit = async (event) => {
+        const id = event.target.id
+        await fetch(API_URL + '/employee/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['employee'])
+            .then((employee) => {
+                const entries = Object.entries(employee)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, id: key, value: value }
+                    })
+
+                Slideover().renderForm('Edit Employee', entries, false)
+                Slideover().toggleSlideover()
+            })
     }
 
     const onDelete = (event) => {
