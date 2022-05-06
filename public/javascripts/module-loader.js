@@ -177,14 +177,11 @@ const Slideover = () => {
     }
 
     /**
-     * Handle SlideOver Events such as clicks
+     * Handle Slideover Events such as clicks
      */
     const handleClickEvents = () => {
         document
             .getElementById('form-btn-close')
-            .addEventListener('click', toggleSlideover)
-        document
-            .getElementById('module-btn-action')
             .addEventListener('click', toggleSlideover)
     }
 
@@ -202,13 +199,11 @@ const Slideover = () => {
     const getJsonForm = () => {
         const element = {}
 
-        const container =
-            document.getElementById('form-container').firstElementChild
-                .childNodes
+        const container = document.getElementById('form-container').firstElementChild.childNodes
+
         container.forEach((field) => {
             if (field.lastElementChild.value !== '') {
-                element[field.lastElementChild.id] =
-                    field.lastElementChild.value
+                element[field.lastElementChild.id] = field.lastElementChild.value
             }
         })
 
@@ -218,9 +213,21 @@ const Slideover = () => {
     /**
      * Create form in DOM
      *
-     * @param {Array<{label: string, id: string, required: boolean}>} fields
+     * @param {string} label
+     * @param {{}[]} fields
+     * @param {boolean} hideSaveButton
      */
-    const createForm = (fields) => {
+    const renderForm = (label, fields, hideSaveButton) => {
+        const formLabel = document.getElementById('slideover-label')
+        formLabel.innerHTML = label
+
+        const saveButton = document.getElementById('form-submit-btn')
+        if (hideSaveButton) {
+            saveButton.classList.add('hidden')
+        } else {
+            saveButton.classList.remove('hidden')
+        }
+
         const container = document.getElementById('form-container')
 
         const dummyContainer = document.createElement('div')
@@ -245,9 +252,11 @@ const Slideover = () => {
 
             const input = document.createElement('input')
             input.type = 'text'
-            input.id = field.id
+            input.id = field.id ?? null
             input.className = inputStyles
-            input.required = field.required
+            input.value = field.value ?? null
+            input.required = field.required ?? false
+            input.disabled = field.disabled ?? false
 
             section.appendChild(flex)
             section.appendChild(input)
@@ -262,12 +271,33 @@ const Slideover = () => {
         container.appendChild(dummyContainer)
     }
 
+    /**
+     * Set save btn action
+     * @param {function} cb
+     */
+    const setSaveBtnAction = (cb) => {
+        document.getElementById('form-submit-btn').onclick = cb
+    }
+
+    /**
+     * Set create button action
+     * @param {function} cb
+     */
+    const setCreateBtnAction = (label, cb) => {
+        const action = document.getElementById('module-btn-action')
+
+        action.onclick = cb
+        action.innerHTML = label
+    }
+
     return {
         handleClickEvents,
         toggleSlideover,
         setError,
         getJsonForm,
-        createForm,
+        renderForm,
+        setSaveBtnAction,
+        setCreateBtnAction,
     }
 }
 
@@ -534,13 +564,10 @@ const Module = () => {
      * Set labels and events listeners to a module
      * @param {string} moduleLabel
      * @param {string} slideoverLabel
-     * @param {function} cb
      */
-    const init = (moduleLabel, slideoverLabel, cb) => {
+    const init = (moduleLabel, slideoverLabel) => {
         document.getElementById('module-label').innerHTML = moduleLabel
-        document.getElementById('module-btn-action').innerHTML = slideoverLabel
         document.getElementById('slideover-label').innerHTML = slideoverLabel
-        document.getElementById('form-submit-btn').onclick = cb
     }
 
     return {
@@ -554,40 +581,31 @@ const Module = () => {
 
 const Customers = () => {
     const init = () => {
-        Module().init('Customers', 'New Customer', onFormSubmission)
+        Module().init('Customers', 'New Customer')
+
+        Slideover().setCreateBtnAction('New Customer', onCreateCustomer)
+        Slideover().setSaveBtnAction(onFormSubmission)
 
         fetchCustomers()
-        renderForm()
     }
 
-    const renderForm = () => {
+    const onCreateCustomer = () => {
         const fields = [
-            {
-                label: 'Reader Card Number',
-                id: 'reader_card_num',
-                required: true,
-            },
+            { label: 'Reader Card Number', id: 'reader_card_num', required: true },
             { label: 'Name', id: 'name', required: true },
-            { label: 'Phone', id: 'cell_phone', required: false },
-            { label: 'Birth Date', id: 'birth_date', required: false },
-            { label: 'Gender', id: 'gender', required: false },
-            { label: 'Country', id: 'country', required: false },
-            { label: 'Postal Code', id: 'postal_code', required: false },
-            {
-                label: 'Billing Address',
-                id: 'billing_address',
-                required: false,
-            },
-            {
-                label: 'Residence Address',
-                id: 'residence_address',
-                required: false,
-            },
-            { label: 'NIF', id: 'nif', required: false },
-            { label: 'Profession', id: 'profession', required: false },
+            { label: 'Phone', id: 'cell_phone' },
+            { label: 'Birth Date', id: 'birth_date' },
+            { label: 'Gender', id: 'gender' },
+            { label: 'Country', id: 'country' },
+            { label: 'Postal Code', id: 'postal_code' },
+            { label: 'Billing Address', id: 'billing_address' },
+            { label: 'Residence Address', id: 'residence_address' },
+            { label: 'NIF', id: 'nif' },
+            { label: 'Profession', id: 'profession' },
         ]
 
-        Slideover().createForm(fields)
+        Slideover().renderForm('New Customer', fields, false)
+        Slideover().toggleSlideover()
     }
 
     const actions = [
@@ -624,8 +642,6 @@ const Customers = () => {
     }
 
     const onFormSubmission = async () => {
-        console.log('sub')
-
         await fetch(API_URL + '/customers', {
             method: 'POST',
             headers: {
@@ -646,14 +662,25 @@ const Customers = () => {
             })
     }
 
-    const onView = (event) => {
+    const onView = async (event) => {
         const id = event.target.id
 
-        fetch(API_URL + '/customer/' + id)
+        await fetch(API_URL + '/customer/' + id)
             .then((res) => res.json())
             .then((raw) => raw['customer'])
             .then((customer) => {
-                console.log(customer)
+                const entries = Object.entries(customer)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, value: value, disabled: true }
+                    })
+
+                Slideover().toggleSlideover()
+                Slideover().renderForm('Customer', entries, true)
             })
     }
 
@@ -678,25 +705,28 @@ const Customers = () => {
 
 const Employees = () => {
     const init = () => {
-        Module().init('Employees', 'New Employee', onFormSubmission)
+        Module().init('Employees', 'New Employee')
 
-        renderForm()
+        Slideover().setCreateBtnAction('New Employee', onCreateEmployee)
+        Slideover().setSaveBtnAction(onFormSubmission)
+
         fetchEmployees()
     }
 
-    const renderForm = () => {
+    const onCreateEmployee = () => {
         const fields = [
             { label: 'Employee No', id: 'employee_no', required: true },
             { label: 'Name', id: 'name', required: true },
-            { label: 'NIF', id: 'nif', required: false },
-            { label: 'Phone', id: 'cell_phone', required: false },
-            { label: 'Gender', id: 'gender', required: false },
-            { label: 'Nationality', id: 'nationality', required: false },
-            { label: 'Postal Code', id: 'postal_code', required: false },
-            { label: 'Address', id: 'address', required: false },
+            { label: 'NIF', id: 'nif' },
+            { label: 'Phone', id: 'cell_phone' },
+            { label: 'Gender', id: 'gender' },
+            { label: 'Nationality', id: 'nationality' },
+            { label: 'Postal Code', id: 'postal_code' },
+            { label: 'Address', id: 'address' },
         ]
 
-        Slideover().createForm(fields)
+        Slideover().renderForm('New Employee', fields, false)
+        Slideover().toggleSlideover()
     }
 
     const actions = [
@@ -737,13 +767,15 @@ const Employees = () => {
 
 const Books = () => {
     const init = () => {
-        Module().init('Books', 'New Book', onFormSubmission)
+        Module().init('Books', 'New Book')
 
-        renderForm()
+        Slideover().setCreateBtnAction('New Book', onCreateBook)
+        Slideover().setSaveBtnAction(onFormSubmission)
+
         onModuleLoad()
     }
 
-    const renderForm = () => {
+    const onCreateBook = () => {
         const fields = [
             { label: 'ISBN', id: 'isbn', required: true },
             { label: 'Stock New', id: 'stock_new', required: true },
@@ -752,7 +784,8 @@ const Books = () => {
             { label: 'Price Second Hand', id: 'price_used', required: true },
         ]
 
-        Slideover().createForm(fields)
+        Slideover().renderForm('New Book', fields, false)
+        Slideover().toggleSlideover()
     }
 
     const onModuleLoad = () => {
@@ -789,7 +822,7 @@ const Books = () => {
     }
 
     const onFormSubmission = async () => {
-        const response = await fetch(API_URL + '/books', {
+        await fetch(API_URL + '/books', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -813,9 +846,7 @@ const Books = () => {
                 Slideover().toggleSlideover()
                 Slideover().setError(null)
             })
-            .then(() => {
-                onModuleLoad()
-            })
+            .then(() => onModuleLoad())
     }
 
     return {
@@ -829,13 +860,15 @@ const Books = () => {
 
 const Purchases = () => {
     const init = () => {
-        Module().init('Purchases', 'New Purchase', onFormSubmission)
+        Module().init('Purchases', 'New Purchase')
 
-        renderForm()
+        Slideover().setCreateBtnAction('New Purchase', onCreatePurchase)
+        Slideover().setSaveBtnAction(onFormSubmission)
+
         fetchPurchases()
     }
 
-    const renderForm = () => {
+    const onCreatePurchase = () => {
         fetch('http://localhost:3000/forms/purchases.ejs')
             .then((response) => response.text())
             .then((text) => {
