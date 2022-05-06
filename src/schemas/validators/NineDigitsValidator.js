@@ -6,6 +6,10 @@
  */
 const nineDigitsValidator = async (digits) => {
     return new Promise((resolve, reject) => {
+        if (digits == null) {
+            return resolve(true)
+        }
+
         const expression = /^\d{9}$/
         const match = digits.match(expression)
 
