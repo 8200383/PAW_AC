@@ -150,7 +150,7 @@ const Slideover = () => {
 
     const inputStyles = classNames(
         'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
-        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
     )
 
     /**
@@ -174,25 +174,22 @@ const Slideover = () => {
         components.forEach((component) => {
             toggleComponent(component)
         })
+
+        setError()
     }
 
     /**
-     * Handle SlideOver Events such as clicks
+     * Handle Slideover Events such as clicks
      */
     const handleClickEvents = () => {
         document
             .getElementById('form-btn-close')
-            .addEventListener('click', toggleSlideover)
-        document
-            .getElementById('module-btn-action')
             .addEventListener('click', toggleSlideover)
     }
 
     const setError = (error) => {
         const slideover = document.getElementById('slideover-error')
         slideover.innerHTML = error ?? ''
-
-        toggleComponent('slideover-error')
     }
 
     /**
@@ -202,13 +199,13 @@ const Slideover = () => {
     const getJsonForm = () => {
         const element = {}
 
-        const container =
-            document.getElementById('form-container').firstElementChild
-                .childNodes
+        const container = document.getElementById('form-container').firstElementChild.childNodes
+
         container.forEach((field) => {
             if (field.lastElementChild.value !== '') {
-                element[field.lastElementChild.id] =
-                    field.lastElementChild.value
+                element[field.lastElementChild.id] = field.lastElementChild.value
+            } else if (field.lastElementChild.value === '' && field.lastElementChild.required) {
+                element[field.lastElementChild.id] = null
             }
         })
 
@@ -218,9 +215,25 @@ const Slideover = () => {
     /**
      * Create form in DOM
      *
-     * @param {Array<{label: string, id: string, required: boolean}>} fields
+     * @param {string} label
+     * @param {{}[]} fields
+     * @param {boolean} hideSaveButton
+     * @param {function} saveButtonCallback
      */
-    const createForm = (fields) => {
+    const renderForm = (label, fields, hideSaveButton, saveButtonCallback) => {
+        const formLabel = document.getElementById('slideover-label')
+        formLabel.innerHTML = label
+
+        const saveButton = document.getElementById('form-submit-btn')
+
+        if (hideSaveButton) {
+            saveButton.classList.add('hidden')
+        } else {
+            saveButton.classList.remove('hidden')
+        }
+
+        saveButton.onclick = saveButtonCallback
+
         const container = document.getElementById('form-container')
 
         const dummyContainer = document.createElement('div')
@@ -245,9 +258,11 @@ const Slideover = () => {
 
             const input = document.createElement('input')
             input.type = 'text'
-            input.id = field.id
+            input.id = field.id ?? null
             input.className = inputStyles
-            input.required = field.required
+            input.value = field.value ?? null
+            input.required = field.required ?? false
+            input.disabled = field.disabled ?? false
 
             section.appendChild(flex)
             section.appendChild(input)
@@ -262,12 +277,24 @@ const Slideover = () => {
         container.appendChild(dummyContainer)
     }
 
+    /**
+     * Set create button action
+     * @param {function} cb
+     */
+    const setCreateBtnAction = (label, cb) => {
+        const action = document.getElementById('module-btn-action')
+
+        action.onclick = cb
+        action.innerHTML = label
+    }
+
     return {
         handleClickEvents,
         toggleSlideover,
         setError,
         getJsonForm,
-        createForm,
+        renderForm,
+        setCreateBtnAction,
     }
 }
 
@@ -277,13 +304,13 @@ const Slideover = () => {
 
 const Table = () => {
     const rowStyles = classNames(
-        'px-6 py-3 whitespace-nowrap text-sm text-gray-800'
+        'px-6 py-3 whitespace-nowrap text-sm text-gray-800',
     )
 
     const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
 
     const rowActionsStyles = classNames(
-        'py-3 px-1 whitespace-nowrap text-sm font-medium'
+        'py-3 px-1 whitespace-nowrap text-sm font-medium',
     )
 
     const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
@@ -293,7 +320,7 @@ const Table = () => {
     const thStyles = classNames(
         'px-6 py-3 border-b border-gray-200 bg-gray-50',
         'text-left text-xs font-medium text-gray-500',
-        'uppercase tracking-wider'
+        'uppercase tracking-wider',
     )
 
     /**
@@ -365,6 +392,40 @@ const Table = () => {
     }
 
     /**
+     * Add rows to the table but the columns with objects are children
+     * @param {{}[]} rows
+     * @return {HTMLTableRowElement[]}
+     */
+    const addRowsWithChildren = (rows) => {
+        return rows.map((row) => {
+            const tr = document.createElement('tr')
+
+            const html = Object.values(row).map((field) => {
+                const td = document.createElement('td')
+                td.className = classNames(
+                    rowStyles,
+                    Array.isArray(field) ? 'flex flex-col space-x-2' : null,
+                )
+
+                if (Array.isArray(field)) {
+                    const fields = field.map((o) => {
+                        return JSON.stringify(o)
+                    })
+
+                    td.append(...fields)
+                } else {
+                    td.innerHTML = field
+                }
+
+                return td
+            })
+
+            tr.append(...html)
+            return tr
+        })
+    }
+
+    /**
      * Renders a table with custom callback functions
      * @param {HTMLTableRowElement} columnsCallback
      * @param {HTMLTableRowElement[]} rowsCallback
@@ -419,6 +480,9 @@ const Table = () => {
     return {
         customRender,
         render,
+        addColumns,
+        addRows,
+        addRowsWithChildren,
     }
 }
 
@@ -467,7 +531,7 @@ const Sidebar = () => {
     const sidebarStyles = classNames(
         'w-full flex items-center px-3 py-2',
         'text-sm font-medium text-gray-700',
-        'rounded-md hover:text-gray-900 hover:bg-gray-50'
+        'rounded-md hover:text-gray-900 hover:bg-gray-50',
     )
 
     const appendModules = (modules, id) => {
@@ -497,13 +561,10 @@ const Module = () => {
      * Set labels and events listeners to a module
      * @param {string} moduleLabel
      * @param {string} slideoverLabel
-     * @param {function} cb
      */
-    const init = (moduleLabel, slideoverLabel, cb) => {
+    const init = (moduleLabel, slideoverLabel) => {
         document.getElementById('module-label').innerHTML = moduleLabel
-        document.getElementById('module-btn-action').innerHTML = slideoverLabel
         document.getElementById('slideover-label').innerHTML = slideoverLabel
-        document.getElementById('form-submit-btn').onclick = cb
     }
 
     return {
@@ -517,40 +578,30 @@ const Module = () => {
 
 const Customers = () => {
     const init = () => {
-        Module().init('Customers', 'New Customer', onFormSubmission)
+        Module().init('Customers', 'New Customer')
+
+        Slideover().setCreateBtnAction('New Customer', onCreateCustomer)
 
         fetchCustomers()
-        renderForm()
     }
 
-    const renderForm = () => {
+    const onCreateCustomer = () => {
         const fields = [
-            {
-                label: 'Reader Card Number',
-                id: 'reader_card_num',
-                required: true,
-            },
+            { label: 'Reader Card Number', id: 'reader_card_num', required: true },
             { label: 'Name', id: 'name', required: true },
-            { label: 'Phone', id: 'cell_phone', required: false },
-            { label: 'Birth Date', id: 'birth_date', required: false },
-            { label: 'Gender', id: 'gender', required: false },
-            { label: 'Country', id: 'country', required: false },
-            { label: 'Postal Code', id: 'postal_code', required: false },
-            {
-                label: 'Billing Address',
-                id: 'billing_address',
-                required: false,
-            },
-            {
-                label: 'Residence Address',
-                id: 'residence_address',
-                required: false,
-            },
-            { label: 'NIF', id: 'nif', required: false },
-            { label: 'Profession', id: 'profession', required: false },
+            { label: 'Phone', id: 'cell_phone' },
+            { label: 'Birth Date', id: 'birth_date' },
+            { label: 'Gender', id: 'gender' },
+            { label: 'Country', id: 'country' },
+            { label: 'Postal Code', id: 'postal_code' },
+            { label: 'Billing Address', id: 'billing_address' },
+            { label: 'Residence Address', id: 'residence_address' },
+            { label: 'NIF', id: 'nif' },
+            { label: 'Profession', id: 'profession' },
         ]
 
-        Slideover().createForm(fields)
+        Slideover().renderForm('New Customer', fields, false, onFormSubmission)
+        Slideover().toggleSlideover()
     }
 
     const actions = [
@@ -587,8 +638,6 @@ const Customers = () => {
     }
 
     const onFormSubmission = async () => {
-        console.log('sub')
-
         await fetch(API_URL + '/customers', {
             method: 'POST',
             headers: {
@@ -605,23 +654,50 @@ const Customers = () => {
                 }
 
                 Slideover().toggleSlideover()
-                Slideover().setError(null)
             })
     }
 
-    const onView = (event) => {
+    const onView = async (event) => {
         const id = event.target.id
 
-        fetch(API_URL + '/customer/' + id)
+        await fetch(API_URL + '/customer/' + id)
             .then((res) => res.json())
             .then((raw) => raw['customer'])
             .then((customer) => {
-                console.log(customer)
+                const entries = Object.entries(customer)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, value: value, disabled: true }
+                    })
+
+                Slideover().toggleSlideover()
+                Slideover().renderForm('Customer', entries, true, onFormSubmission)
             })
     }
 
-    const onEdit = (event) => {
-        console.log(event.target.id)
+    const onEdit = async (event) => {
+        const id = event.target.id
+        await fetch(API_URL + '/customer/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['customer'])
+            .then((customer) => {
+                const entries = Object.entries(customer)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, id: key, value: value }
+                    })
+
+                Slideover().renderForm('Edit Customer', entries, false, () => console.log('edit customer'))
+                Slideover().toggleSlideover()
+            })
     }
 
     const onDelete = (event) => {
@@ -641,42 +717,44 @@ const Customers = () => {
 
 const Employees = () => {
     const init = () => {
-        Module().init('Employees', 'New Employee', onFormSubmission)
+        Module().init('Employees', 'New Employee')
 
-        renderForm()
+        Slideover().setCreateBtnAction('New Employee', onCreateEmployee)
+
         fetchEmployees()
     }
 
-    const renderForm = () => {
+    const onCreateEmployee = () => {
         const fields = [
             { label: 'Employee No', id: 'employee_no', required: true },
             { label: 'Name', id: 'name', required: true },
-            { label: 'NIF', id: 'nif', required: false },
-            { label: 'Phone', id: 'cell_phone', required: false },
-            { label: 'Gender', id: 'gender', required: false },
-            { label: 'Nationality', id: 'nationality', required: false },
-            { label: 'Postal Code', id: 'postal_code', required: false },
-            { label: 'Address', id: 'address', required: false },
+            { label: 'NIF', id: 'nif' },
+            { label: 'Phone', id: 'cell_phone' },
+            { label: 'Gender', id: 'gender' },
+            { label: 'Nationality', id: 'nationality' },
+            { label: 'Postal Code', id: 'postal_code' },
+            { label: 'Address', id: 'address' },
         ]
 
-        Slideover().createForm(fields)
+        Slideover().renderForm('New Employee', fields, false, onFormSubmission)
+        Slideover().toggleSlideover()
     }
 
     const actions = [
         {
             label: 'View',
             color: 'text-indigo-600',
-            cb: () => console.log('clicked'),
+            cb: (event) => onView(event),
         },
         {
             label: 'Edit',
             color: 'text-yellow-600',
-            cb: () => console.log('clicked'),
+            cb: (event) => onEdit(event),
         },
         {
-            label: 'View',
-            color: 'text-indigo-600',
-            cb: () => console.log('clicked'),
+            label: 'Delete',
+            color: 'text-red-600',
+            cb: (event) => onDelete(event),
         },
     ]
 
@@ -685,12 +763,88 @@ const Employees = () => {
             .then((res) => res.json())
             .then((raw) => raw['employees'])
             .then((rows) => {
+                if (rows.length === 0) {
+                    EmptyState().render('There is no employees yet!')
+                    return
+                }
+
                 const columns = extractColumns(rows[0])
                 Table().render(columns, rows, actions)
             })
     }
 
-    const onFormSubmission = () => {}
+    const onView = async (event) => {
+        const id = event.target.id
+
+        await fetch(API_URL + '/employee/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['employee'])
+            .then((employee) => {
+                const entries = Object.entries(employee)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'update_at', 'updated_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, value: value, disabled: true }
+                    })
+
+                Slideover().toggleSlideover()
+                Slideover().renderForm('Customer', entries, true, null)
+            })
+    }
+
+    const onEdit = async (event) => {
+        const id = event.target.id
+        await fetch(API_URL + '/employee/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['employee'])
+            .then((employee) => {
+                const entries = Object.entries(employee)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, id: key, value: value }
+                    })
+
+                Slideover().renderForm('Edit Employee', entries, false, () => console.log('edit employee'))
+                Slideover().toggleSlideover()
+            })
+    }
+
+    const onDelete = (event) => {
+        const id = event.target.id
+
+        fetch(API_URL + '/employee/' + id, {
+            method: 'DELETE',
+        }).then(() => {
+            event.target.parentElement.parentElement.remove()
+        })
+    }
+
+    const onFormSubmission = async () => {
+        await fetch(API_URL + '/employees', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: Slideover().getJsonForm(),
+        })
+            .then((raw) => raw.json())
+            .then((res) => {
+                if (res['error']) {
+                    Slideover().setError(res['error'])
+                    return
+                }
+
+                Slideover().toggleSlideover()
+            })
+    }
 
     return {
         init,
@@ -699,13 +853,14 @@ const Employees = () => {
 
 const Books = () => {
     const init = () => {
-        Module().init('Books', 'New Book', onFormSubmission)
+        Module().init('Books', 'New Book')
 
-        renderForm()
+        Slideover().setCreateBtnAction('New Book', onCreateBook)
+
         onModuleLoad()
     }
 
-    const renderForm = () => {
+    const onCreateBook = () => {
         const fields = [
             { label: 'ISBN', id: 'isbn', required: true },
             { label: 'Stock New', id: 'stock_new', required: true },
@@ -714,7 +869,8 @@ const Books = () => {
             { label: 'Price Second Hand', id: 'price_used', required: true },
         ]
 
-        Slideover().createForm(fields)
+        Slideover().renderForm('New Book', fields, false, onFormSubmission)
+        Slideover().toggleSlideover()
     }
 
     const onModuleLoad = () => {
@@ -722,17 +878,7 @@ const Books = () => {
             {
                 label: 'View',
                 color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: () => console.log('clicked'),
+                cb: (event) => onView(event),
             },
         ]
 
@@ -773,10 +919,29 @@ const Books = () => {
                 }
 
                 Slideover().toggleSlideover()
-                Slideover().setError(null)
             })
-            .then(() => {
-                onModuleLoad()
+            .then(() => onModuleLoad())
+    }
+
+    const onView = async (event) => {
+        const id = event.target.id
+
+        await fetch(API_URL + '/book/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['book'])
+            .then((book) => {
+                const entries = Object.entries(book)
+                    .filter(([key]) => {
+                        const dontShow = ['_id', '__v', 'created_at', 'updated_at', 'update_at']
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        return { label: key, value: value, disabled: true }
+                    })
+
+                Slideover().toggleSlideover()
+                Slideover().renderForm('Customer', entries, true, null)
             })
     }
 
@@ -791,13 +956,14 @@ const Books = () => {
 
 const Purchases = () => {
     const init = () => {
-        Module().init('Purchases', 'New Purchase', onFormSubmission)
+        Module().init('Purchases', 'New Purchase')
 
-        renderForm()
+        Slideover().setCreateBtnAction('New Purchase', onCreatePurchase)
+
         fetchPurchases()
     }
 
-    const renderForm = () => {
+    const onCreatePurchase = () => {
         fetch('http://localhost:3000/forms/purchases.ejs')
             .then((response) => response.text())
             .then((text) => {
@@ -812,16 +978,6 @@ const Purchases = () => {
                 color: 'text-indigo-600',
                 cb: () => console.log('clicked'),
             },
-            {
-                label: 'Edit',
-                color: 'text-yellow-600',
-                cb: () => console.log('clicked'),
-            },
-            {
-                label: 'Delete',
-                color: 'text-red-600',
-                cb: () => console.log('clicked'),
-            },
         ]
 
         fetch(API_URL + '/purchases')
@@ -834,7 +990,11 @@ const Purchases = () => {
                 }
 
                 const columns = extractColumns(rows[0])
-                Table().render(columns, rows, actions)
+                Table().customRender(
+                    Table().addColumns(columns),
+                    Table().addRowsWithChildren(rows),
+                    actions,
+                )
             })
             .then(() => handlePurchaseClickEvents())
     }
@@ -916,7 +1076,7 @@ const removeIsbn = (button) => {
                 .getElementById('form-submit-btn')
                 .setAttribute(
                     'class',
-                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
                 )
         }
         button.parentElement.parentElement.remove()
@@ -931,7 +1091,7 @@ const addIsbn = () => {
             .getElementById('form-submit-btn')
             .setAttribute(
                 'class',
-                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
             )
     })
 }
@@ -941,7 +1101,7 @@ const resetForm = () => {
         .getElementById('module-btn-action')
         .addEventListener('click', () => {
             document.getElementById(
-                'form-container'
+                'form-container',
             ).firstElementChild.firstElementChild.innerHTML = ''
             document.getElementById('add-isbn').click()
         })
@@ -979,7 +1139,7 @@ const appendIsbnForm = () => {
     let isbnInput = document.createElement('input')
     isbnInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     isbnInput.setAttribute('type', 'text')
     isbnInput.setAttribute('name', 'isbn')
@@ -1000,7 +1160,7 @@ const appendIsbnForm = () => {
     let typeSelect = document.createElement('select')
     typeSelect.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     typeSelect.setAttribute('name', 'book-type')
 
@@ -1030,7 +1190,7 @@ const appendIsbnForm = () => {
     let qntInput = document.createElement('input')
     qntInput.setAttribute(
         'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
     )
     qntInput.setAttribute('name', 'quantity')
     qntInput.setAttribute('type', 'number')
@@ -1050,7 +1210,7 @@ const appendIsbnForm = () => {
     let removeButton = document.createElement('button')
     removeButton.setAttribute(
         'class',
-        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
     )
     removeButton.setAttribute('type', 'button')
     removeButton.setAttribute('name', 'remove-isbn')
