@@ -741,8 +741,8 @@ const Employees = () => {
             cb: () => console.log('clicked'),
         },
         {
-            label: 'View',
-            color: 'text-indigo-600',
+            label: 'Delete',
+            color: 'text-red-600',
             cb: () => console.log('clicked'),
         },
     ]
