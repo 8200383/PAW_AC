@@ -798,7 +798,25 @@ const Employees = () => {
         })
     }
 
-    const onFormSubmission = () => {
+    const onFormSubmission = async () => {
+        await fetch(API_URL + '/employees', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: Slideover().getJsonForm(),
+        })
+            .then((raw) => raw.json())
+            .then((res) => {
+                if (res['error']) {
+                    Slideover().setError(res['error'])
+                    return
+                }
+
+                Slideover().toggleSlideover()
+                Slideover().setError(null)
+            })
     }
 
     return {
