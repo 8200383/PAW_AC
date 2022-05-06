@@ -218,17 +218,21 @@ const Slideover = () => {
      * @param {string} label
      * @param {{}[]} fields
      * @param {boolean} hideSaveButton
+     * @param {function} saveButtonCallback
      */
-    const renderForm = (label, fields, hideSaveButton) => {
+    const renderForm = (label, fields, hideSaveButton, saveButtonCallback) => {
         const formLabel = document.getElementById('slideover-label')
         formLabel.innerHTML = label
 
         const saveButton = document.getElementById('form-submit-btn')
+
         if (hideSaveButton) {
             saveButton.classList.add('hidden')
         } else {
             saveButton.classList.remove('hidden')
         }
+
+        saveButton.onclick = saveButtonCallback
 
         const container = document.getElementById('form-container')
 
@@ -274,14 +278,6 @@ const Slideover = () => {
     }
 
     /**
-     * Set save btn action
-     * @param {function} cb
-     */
-    const setSaveBtnAction = (cb) => {
-        document.getElementById('form-submit-btn').onclick = cb
-    }
-
-    /**
      * Set create button action
      * @param {function} cb
      */
@@ -298,7 +294,6 @@ const Slideover = () => {
         setError,
         getJsonForm,
         renderForm,
-        setSaveBtnAction,
         setCreateBtnAction,
     }
 }
@@ -586,7 +581,6 @@ const Customers = () => {
         Module().init('Customers', 'New Customer')
 
         Slideover().setCreateBtnAction('New Customer', onCreateCustomer)
-        Slideover().setSaveBtnAction(onFormSubmission)
 
         fetchCustomers()
     }
@@ -606,7 +600,7 @@ const Customers = () => {
             { label: 'Profession', id: 'profession' },
         ]
 
-        Slideover().renderForm('New Customer', fields, false)
+        Slideover().renderForm('New Customer', fields, false, onFormSubmission)
         Slideover().toggleSlideover()
     }
 
@@ -682,7 +676,7 @@ const Customers = () => {
                     })
 
                 Slideover().toggleSlideover()
-                Slideover().renderForm('Customer', entries, true)
+                Slideover().renderForm('Customer', entries, true, onFormSubmission)
             })
     }
 
@@ -702,7 +696,7 @@ const Customers = () => {
                         return { label: key, id: key, value: value }
                     })
 
-                Slideover().renderForm('Edit Customer', entries, false)
+                Slideover().renderForm('Edit Customer', entries, false, () => console.log('edit customer'))
                 Slideover().toggleSlideover()
             })
     }
@@ -727,7 +721,6 @@ const Employees = () => {
         Module().init('Employees', 'New Employee')
 
         Slideover().setCreateBtnAction('New Employee', onCreateEmployee)
-        Slideover().setSaveBtnAction(onFormSubmission)
 
         fetchEmployees()
     }
@@ -744,7 +737,7 @@ const Employees = () => {
             { label: 'Address', id: 'address' },
         ]
 
-        Slideover().renderForm('New Employee', fields, false)
+        Slideover().renderForm('New Employee', fields, false, onFormSubmission)
         Slideover().toggleSlideover()
     }
 
@@ -799,7 +792,7 @@ const Employees = () => {
                     })
 
                 Slideover().toggleSlideover()
-                Slideover().renderForm('Customer', entries, true)
+                Slideover().renderForm('Customer', entries, true, null)
             })
     }
 
@@ -819,7 +812,7 @@ const Employees = () => {
                         return { label: key, id: key, value: value }
                     })
 
-                Slideover().renderForm('Edit Employee', entries, false)
+                Slideover().renderForm('Edit Employee', entries, false, () => console.log('edit employee'))
                 Slideover().toggleSlideover()
             })
     }
@@ -865,7 +858,6 @@ const Books = () => {
         Module().init('Books', 'New Book')
 
         Slideover().setCreateBtnAction('New Book', onCreateBook)
-        Slideover().setSaveBtnAction(onFormSubmission)
 
         onModuleLoad()
     }
@@ -879,7 +871,7 @@ const Books = () => {
             { label: 'Price Second Hand', id: 'price_used', required: true },
         ]
 
-        Slideover().renderForm('New Book', fields, false)
+        Slideover().renderForm('New Book', fields, false, onFormSubmission)
         Slideover().toggleSlideover()
     }
 
@@ -952,7 +944,7 @@ const Books = () => {
                     })
 
                 Slideover().toggleSlideover()
-                Slideover().renderForm('Customer', entries, true)
+                Slideover().renderForm('Customer', entries, true, null)
             })
     }
 
