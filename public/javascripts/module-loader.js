@@ -752,6 +752,11 @@ const Employees = () => {
             .then((res) => res.json())
             .then((raw) => raw['employees'])
             .then((rows) => {
+                if (rows.length === 0) {
+                    EmptyState().render('There is no employees yet!')
+                    return
+                }
+
                 const columns = extractColumns(rows[0])
                 Table().render(columns, rows, actions)
             })
