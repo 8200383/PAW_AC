@@ -150,7 +150,7 @@ const Slideover = () => {
 
     const inputStyles = classNames(
         'mt-1 focus:ring-indigo-500 focus:border-indigo-500',
-        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md'
+        'block w-full shadow-sm sm:text-sm border-gray-300 rounded-md',
     )
 
     /**
@@ -310,13 +310,13 @@ const Slideover = () => {
 
 const Table = () => {
     const rowStyles = classNames(
-        'px-6 py-3 whitespace-nowrap text-sm text-gray-800 text-center'
+        'px-6 py-3 whitespace-nowrap text-sm text-gray-800 text-center',
     )
 
     const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
 
     const rowActionsStyles = classNames(
-        'py-3 px-1 whitespace-nowrap text-sm font-medium'
+        'py-3 px-1 whitespace-nowrap text-sm font-medium',
     )
 
     const tbodyStyles = classNames('bg-white divide-y divide-gray-100')
@@ -326,7 +326,7 @@ const Table = () => {
     const thStyles = classNames(
         'px-6 py-3 border-b border-gray-200 bg-gray-50',
         'text-left text-xs font-medium text-gray-500',
-        'uppercase tracking-wider text-center'
+        'uppercase tracking-wider text-center',
     )
 
     /**
@@ -410,7 +410,7 @@ const Table = () => {
                 const td = document.createElement('td')
                 td.className = classNames(
                     rowStyles,
-                    Array.isArray(field) ? 'flex flex-col space-x-2' : null
+                    Array.isArray(field) ? 'flex flex-col space-x-2' : null,
                 )
 
                 if (Array.isArray(field)) {
@@ -571,7 +571,7 @@ const Sidebar = () => {
     const sidebarStyles = classNames(
         'w-full flex items-center px-3 py-2',
         'text-sm font-medium text-gray-700',
-        'rounded-md hover:text-gray-900 hover:bg-gray-50'
+        'rounded-md hover:text-gray-900 hover:bg-gray-50',
     )
 
     const appendModules = (modules, id) => {
@@ -729,7 +729,7 @@ const Customers = () => {
                     'Customer',
                     entries,
                     true,
-                    onFormSubmission
+                    onFormSubmission,
                 )
             })
     }
@@ -757,7 +757,7 @@ const Customers = () => {
                     })
 
                 Slideover().renderForm('Edit Customer', entries, false, () =>
-                    console.log('edit customer')
+                    console.log('edit customer'),
                 )
                 Slideover().toggleSlideover()
             })
@@ -887,7 +887,7 @@ const Employees = () => {
                     })
 
                 Slideover().renderForm('Edit Employee', entries, false, () =>
-                    console.log('edit employee')
+                    console.log('edit employee'),
                 )
                 Slideover().toggleSlideover()
             })
@@ -1042,7 +1042,7 @@ const Books = () => {
 
                 Slideover().toggleSlideover()
                 Slideover().renderForm('Book', entries, false, () =>
-                    onFormSubEdit()
+                    onFormSubEdit(),
                 )
             })
     }
@@ -1188,16 +1188,16 @@ const Purchases = () => {
                 Table().customRender(
                     Table().addColumns(columns),
                     Table().addRowsWithChildren(rows),
-                    actions
+                    actions,
                 )
             })
     }
 
     const handleBooks = () => {
-        var isbn = []
-        var type = []
-        var qnt = []
-        var books = []
+        let isbn = []
+        let type = []
+        let qnt = []
+        let books = []
 
         document.getElementsByName('isbn').forEach((input) => {
             isbn.push(input.value)
@@ -1228,7 +1228,7 @@ const Purchases = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                customer: '125', //brute force
+                customer: '125', // FIXME What is this?
                 books: handleBooks(),
                 payment_method: document.getElementById('payment-method').value,
                 spent_balance: document.getElementById('points').value,
@@ -1248,169 +1248,170 @@ const Purchases = () => {
             })
     }
 
-    return {
-        init,
+
+    const handlePurchaseClickEvents = () => {
+        resetForm()
+        addIsbn()
     }
-}
 
-const handlePurchaseClickEvents = () => {
-    resetForm()
-    addIsbn()
-}
+    const removeIsbn = (button) => {
+        button.addEventListener('click', () => {
+            if (
+                button.parentElement.parentElement.parentElement
+                    .childElementCount === 1
+            ) {
+                document.getElementById('form-submit-btn').disabled = true
+                document
+                    .getElementById('form-submit-btn')
+                    .setAttribute(
+                        'class',
+                        'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
+                    )
+            }
+            button.parentElement.parentElement.remove()
+        })
+    }
 
-const removeIsbn = (button) => {
-    button.addEventListener('click', () => {
-        if (
-            button.parentElement.parentElement.parentElement
-                .childElementCount === 1
-        ) {
-            document.getElementById('form-submit-btn').disabled = true
+    const addIsbn = () => {
+        document.getElementById('add-isbn').addEventListener('click', () => {
+            appendIsbnForm()
+            document.getElementById('form-submit-btn').disabled = false
             document
                 .getElementById('form-submit-btn')
                 .setAttribute(
                     'class',
-                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
+                    'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500',
                 )
-        }
-        button.parentElement.parentElement.remove()
-    })
-}
-
-const addIsbn = () => {
-    document.getElementById('add-isbn').addEventListener('click', () => {
-        appendIsbnForm()
-        document.getElementById('form-submit-btn').disabled = false
-        document
-            .getElementById('form-submit-btn')
-            .setAttribute(
-                'class',
-                'inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500'
-            )
-    })
-}
-
-const resetForm = () => {
-    document
-        .getElementById('module-btn-action')
-        .addEventListener('click', () => {
-            document.getElementById(
-                'form-container'
-            ).firstElementChild.firstElementChild.innerHTML = ''
-            document.getElementById('add-isbn').click()
         })
-}
+    }
 
-const trashSvg = () => {
-    return `
+    const resetForm = () => {
+        document
+            .getElementById('module-btn-action')
+            .addEventListener('click', () => {
+                document.getElementById(
+                    'form-container',
+                ).firstElementChild.firstElementChild.innerHTML = ''
+                document.getElementById('add-isbn').click()
+            })
+    }
+
+    const trashSvg = () => {
+        return `
         <svg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6' fill='none' viewBox='0 0 24 24' stroke='currentColor'
              stroke-width='2'>
             <path stroke-linecap='round' stroke-linejoin='round'
                   d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16' />
         </svg>
     `
-}
+    }
 
-const appendIsbnForm = () => {
-    let parentDiv =
-        document.getElementById('form-container').firstElementChild
-            .firstElementChild
+    const appendIsbnForm = () => {
+        let parentDiv =
+            document.getElementById('form-container').firstElementChild
+                .firstElementChild
 
-    let newDiv = document.createElement('div')
-    newDiv.setAttribute('class', 'flex items-center space-x-4 mt-4')
+        let newDiv = document.createElement('div')
+        newDiv.setAttribute('class', 'flex items-center space-x-4 mt-4')
 
-    parentDiv.append(newDiv)
+        parentDiv.append(newDiv)
 
-    //isbn div
-    let isbnDiv = document.createElement('div')
-    isbnDiv.setAttribute('class', 'h-auto grow')
+        //isbn div
+        let isbnDiv = document.createElement('div')
+        isbnDiv.setAttribute('class', 'h-auto grow')
 
-    let isbnLabel = document.createElement('label')
-    isbnLabel.setAttribute('class', 'block text-sm font-medium text-gray-700')
-    isbnLabel.setAttribute('for', 'isbn')
-    isbnLabel.innerHTML = 'ISBN'
+        let isbnLabel = document.createElement('label')
+        isbnLabel.setAttribute('class', 'block text-sm font-medium text-gray-700')
+        isbnLabel.setAttribute('for', 'isbn')
+        isbnLabel.innerHTML = 'ISBN'
 
-    let isbnInput = document.createElement('input')
-    isbnInput.setAttribute(
-        'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-    )
-    isbnInput.setAttribute('type', 'text')
-    isbnInput.setAttribute('name', 'isbn')
+        let isbnInput = document.createElement('input')
+        isbnInput.setAttribute(
+            'class',
+            'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        )
+        isbnInput.setAttribute('type', 'text')
+        isbnInput.setAttribute('name', 'isbn')
 
-    isbnDiv.append(isbnLabel)
-    isbnDiv.append(isbnInput)
-    newDiv.append(isbnDiv)
+        isbnDiv.append(isbnLabel)
+        isbnDiv.append(isbnInput)
+        newDiv.append(isbnDiv)
 
-    //type div
-    let typeDiv = document.createElement('div')
-    typeDiv.setAttribute('class', 'h-auto w-22 flex-none')
+        //type div
+        let typeDiv = document.createElement('div')
+        typeDiv.setAttribute('class', 'h-auto w-22 flex-none')
 
-    let typeLabel = document.createElement('label')
-    typeLabel.setAttribute('class', 'block text-sm font-medium text-gray-700')
-    typeLabel.setAttribute('for', 'book-type')
-    typeLabel.innerHTML = 'Type'
+        let typeLabel = document.createElement('label')
+        typeLabel.setAttribute('class', 'block text-sm font-medium text-gray-700')
+        typeLabel.setAttribute('for', 'book-type')
+        typeLabel.innerHTML = 'Type'
 
-    let typeSelect = document.createElement('select')
-    typeSelect.setAttribute(
-        'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-    )
-    typeSelect.setAttribute('name', 'book-type')
+        let typeSelect = document.createElement('select')
+        typeSelect.setAttribute(
+            'class',
+            'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        )
+        typeSelect.setAttribute('name', 'book-type')
 
-    let typeOptionNew = document.createElement('option')
-    typeOptionNew.setAttribute('value', 'New')
-    typeOptionNew.innerHTML = 'New'
+        let typeOptionNew = document.createElement('option')
+        typeOptionNew.setAttribute('value', 'New')
+        typeOptionNew.innerHTML = 'New'
 
-    let typeOptionUsed = document.createElement('option')
-    typeOptionUsed.setAttribute('value', 'Used')
-    typeOptionUsed.innerHTML = 'Used'
+        let typeOptionUsed = document.createElement('option')
+        typeOptionUsed.setAttribute('value', 'Used')
+        typeOptionUsed.innerHTML = 'Used'
 
-    typeDiv.append(typeLabel)
-    typeDiv.append(typeSelect)
-    typeSelect.append(typeOptionNew)
-    typeSelect.append(typeOptionUsed)
-    newDiv.append(typeDiv)
+        typeDiv.append(typeLabel)
+        typeDiv.append(typeSelect)
+        typeSelect.append(typeOptionNew)
+        typeSelect.append(typeOptionUsed)
+        newDiv.append(typeDiv)
 
-    //qnt div
-    let qntDiv = document.createElement('div')
-    qntDiv.setAttribute('class', 'h-auto w-16 flex-none')
+        //qnt div
+        let qntDiv = document.createElement('div')
+        qntDiv.setAttribute('class', 'h-auto w-16 flex-none')
 
-    let qntLabel = document.createElement('label')
-    qntLabel.setAttribute('class', 'block text-sm font-medium text-gray-700')
-    qntLabel.setAttribute('for', 'quantity')
-    qntLabel.innerHTML = 'Qnt'
+        let qntLabel = document.createElement('label')
+        qntLabel.setAttribute('class', 'block text-sm font-medium text-gray-700')
+        qntLabel.setAttribute('for', 'quantity')
+        qntLabel.innerHTML = 'Qnt'
 
-    let qntInput = document.createElement('input')
-    qntInput.setAttribute(
-        'class',
-        'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-    )
-    qntInput.setAttribute('name', 'quantity')
-    qntInput.setAttribute('type', 'number')
-    qntInput.setAttribute('autocomplete', 'given-name')
+        let qntInput = document.createElement('input')
+        qntInput.setAttribute(
+            'class',
+            'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm',
+        )
+        qntInput.setAttribute('name', 'quantity')
+        qntInput.setAttribute('type', 'number')
+        qntInput.setAttribute('autocomplete', 'given-name')
 
-    qntDiv.append(qntLabel)
-    qntDiv.append(qntInput)
-    newDiv.append(qntDiv)
+        qntDiv.append(qntLabel)
+        qntDiv.append(qntInput)
+        newDiv.append(qntDiv)
 
-    //remove div
-    let removeDiv = document.createElement('div')
-    let removeLabel = document.createElement('label')
-    removeLabel.setAttribute('class', 'block text-sm font-medium text-white')
-    removeLabel.setAttribute('for', 'remove-isbn')
-    removeLabel.innerHTML = 'text'
+        //remove div
+        let removeDiv = document.createElement('div')
+        let removeLabel = document.createElement('label')
+        removeLabel.setAttribute('class', 'block text-sm font-medium text-white')
+        removeLabel.setAttribute('for', 'remove-isbn')
+        removeLabel.innerHTML = 'text'
 
-    let removeButton = document.createElement('button')
-    removeButton.setAttribute(
-        'class',
-        'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
-    )
-    removeButton.setAttribute('type', 'button')
-    removeButton.setAttribute('name', 'remove-isbn')
+        let removeButton = document.createElement('button')
+        removeButton.setAttribute(
+            'class',
+            'inline-flex items-center rounded-md border border-transparent bg-red-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
+        )
+        removeButton.setAttribute('type', 'button')
+        removeButton.setAttribute('name', 'remove-isbn')
 
-    removeDiv.append(removeLabel)
-    removeDiv.append(removeButton)
-    removeButton.innerHTML = trashSvg()
-    newDiv.append(removeDiv)
-    removeIsbn(removeButton)
+        removeDiv.append(removeLabel)
+        removeDiv.append(removeButton)
+        removeButton.innerHTML = trashSvg()
+        newDiv.append(removeDiv)
+        removeIsbn(removeButton)
+    }
+
+    return {
+        init,
+    }
 }
