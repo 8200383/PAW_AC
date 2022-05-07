@@ -1167,14 +1167,6 @@ const Purchases = () => {
     }
 
     const fetchPurchases = () => {
-        const actions = [
-            {
-                label: 'View',
-                color: 'text-indigo-600',
-                cb: () => console.log('clicked'),
-            },
-        ]
-
         fetch(API_URL + '/purchases')
             .then((res) => res.json())
             .then((raw) => raw['purchases'])
@@ -1188,7 +1180,7 @@ const Purchases = () => {
                 Table().customRender(
                     Table().addColumns(columns),
                     Table().addRowsWithChildren(rows),
-                    actions,
+                    [],
                 )
             })
     }
