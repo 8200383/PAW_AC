@@ -1,28 +1,45 @@
 <section>
     <div></div>
-    
+
     <div class="flex mt-4 items-center justify-center">
-        <button id="add-isbn" type="button" class="inline-flex items-center rounded-md border border-transparent bg-purple-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <button id="add-isbn" type="button"
+                class="inline-flex items-center rounded-md border border-transparent bg-purple-600 px-2 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             <span>Add new book</span>
         </button>
-    </div><br>
+    </div>
 
-    <div class="flex items-center space-x-4 mt-4">  
-        <div class="h-auto w-20 flex-none">
-            <label class="block text-sm font-medium text-gray-700" for="points">Points spent</label>
-            <input  id="points" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" name="points" type="number" autocomplete="given-name">
+    <div class="flex flex-col space-y-4 my-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700"
+                   for="reader_card_num">
+                Reader Card Number
+            </label>
+            <input class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                   id="reader_card_num"
+                   type="text">
         </div>
-        <div class="h-auto w-22 flex-none">
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700" for="points">Points spent</label>
+            <input id="points"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                   name="points" type="number" autocomplete="given-name">
+        </div>
+
+        <div class="">
             <label class="block text-sm font-medium text-gray-700" for="payment-method">Payment method</label>
-            <select id="payment-method" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" name="payment-method">
+            <select id="payment-method"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    name="payment-method">
                 <option value="Visa">Visa</option>
                 <option value="Mastercad">Mastercad</option>
                 <option value="PayPal">PayPal</option>
                 <option value="Cash">Cash</option>
             </select>
         </div>
-    </div><br>
+    </div>
 </section>

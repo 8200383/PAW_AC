@@ -1228,7 +1228,7 @@ const Purchases = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                customer: '125', // FIXME What is this?
+                customer: document.getElementById('reader_card_num').value,
                 books: handleBooks(),
                 payment_method: document.getElementById('payment-method').value,
                 spent_balance: document.getElementById('points').value,
