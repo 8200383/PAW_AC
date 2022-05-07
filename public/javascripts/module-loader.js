@@ -1242,7 +1242,6 @@ const Purchases = () => {
                 }
 
                 Slideover().toggleSlideover()
-                Slideover().setError(null)
             })
             .then(() => {
                 fetchPurchases()
