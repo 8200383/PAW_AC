@@ -8,8 +8,10 @@ router
     .get(BooksHandler.getAllBooks)
     .patch(BooksHandler.patchBook)
 
-router.route('/api/book/:isbn')
+router
+    .route('/api/book/:isbn')
     .get(BooksHandler.getBook)
+    .delete(BooksHandler.deleteBook)
 
 router.route('/api/books/categories').get(BooksHandler.getCategories)
 

@@ -44,7 +44,7 @@ const bookSchema = new Schema({
     },
     criticism: {
         type: Number,
-        required: false
+        required: false,
     },
     stock_new: {
         type: Number,
@@ -74,15 +74,9 @@ const bookSchema = new Schema({
         min: 0,
         required: true,
     },
-    images: {
-        small_thumbnail: {
-            type: String,
-            required: false,
-        },
-        thumbnail: {
-            type: String,
-            required: false,
-        },
+    image: {
+        type: String,
+        required: false,
     },
     created_at: {
         type: Date,
@@ -94,6 +88,10 @@ const bookSchema = new Schema({
         default: Date.now,
         required: true,
     },
+    active: {
+        type: Boolean,
+        default: true,
+    }
 })
 
 module.exports = mongoose.model('Book', bookSchema)

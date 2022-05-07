@@ -1,5 +1,5 @@
 const { Request, Response, NextFunction } = require('express')
-const { Book, Employee } = require('../schemas')
+const { Book } = require('../schemas')
 const Isbn = require('node-isbn')
 
 /**
@@ -13,6 +13,7 @@ const createBook = async (req, res, next) => {
     Isbn.provider([Isbn.PROVIDER_NAMES.GOOGLE])
         .resolve(req.body.isbn)
         .then(async (book) => {
+            console.log(book)
             let schema = await createSchema(req.body, book)
             await addBook(schema)
             res.status(200).json({ added_book: schema })
@@ -32,45 +33,28 @@ const createBook = async (req, res, next) => {
  * @returns {Promise<Object>}
  */
 const createSchema = async (body, book) => {
-    verifyFields(book)
     return {
         isbn: body.isbn,
         title: book.title,
         authors: book.authors,
-        publisher: book.publisher,
+        publisher: book.publisher ?? '',
         published_date: book.publishedDate,
         language: book.language,
         pages: book.pageCount,
-        description: book.description,
-        category: body.category,
-        maturaty_rating: book.maturityRating,
+        description: book.description ?? '',
+        category: body.category ?? '',
+        maturaty_rating: book.maturityRating ?? '',
         stock_new: body.stock_new,
         stock_used: body.stock_used,
         price_new: body.price_new,
         price_used: body.price_used,
-        images: {
-            small_thumbnail: book.imageLinks.smallThumbnail,
-            thumbnail: book.imageLinks.thumbnail,
-        },
+        image: handleImage(book.imageLinks) ?? '',
     }
 }
 
-const verifyFields = (book) => {
-    if (book.publisher == undefined) {
-        book.publisher = ''
-    }
-    if (book.description == undefined) {
-        book.description = ''
-    }
-    if (book.imageLinks == undefined) {
-        book.imageLinks = ''
-    }
-    if (book.imageLinks.smallThumbnail == undefined) {
-        book.imageLinks.smallThumbnail = ''
-    }
-    if (book.imageLinks.thumbnail == undefined) {
-        book.imageLinks.thumbnail = ''
-    }
+const handleImage = (image) => {
+    if (image == undefined) return ''
+    return image.thumbnail
 }
 
 /**
@@ -142,6 +126,7 @@ const findBook = async (isbn) => {
     try {
         book = await Book.findOne({
             isbn: isbn,
+            active: true,
         })
     } catch (e) {
         throw e
@@ -205,6 +190,61 @@ const updatePrice = async (isbn, price, type) => {
     }
 }
 
+const updatePublisher = async (isbn, publisher) => {
+    try {
+        var book = await findBook(isbn)
+        book.publisher = publisher
+        await book.validate()
+        await book.save()
+    } catch (e) {
+        throw e
+    }
+}
+
+const updateDescription = async (isbn, description) => {
+    try {
+        var book = await findBook(isbn)
+        book.description = description
+        await book.validate()
+        await book.save()
+    } catch (e) {
+        throw e
+    }
+}
+
+const updateCategory = async (isbn, category) => {
+    try {
+        var book = await findBook(isbn)
+        book.category = category
+        await book.validate()
+        await book.save()
+    } catch (e) {
+        throw e
+    }
+}
+
+const updateMaturityRating = async (isbn, maturatyRating) => {
+    try {
+        var book = await findBook(isbn)
+        book.maturaty_rating = maturatyRating
+        await book.validate()
+        await book.save()
+    } catch (e) {
+        throw e
+    }
+}
+
+const updateImage = async (isbn, image) => {
+    try {
+        var book = await findBook(isbn)
+        book.image = image
+        await book.validate()
+        await book.save()
+    } catch (e) {
+        throw e
+    }
+}
+
 /**
  * Patch a book
  *
@@ -227,6 +267,21 @@ const patchBook = async (req, res, next) => {
         if (req.body.price_new != undefined) {
             await updatePrice(req.body.isbn, req.body.price_new, 'new')
         }
+        if (req.body.publisher != undefined) {
+            await updatePublisher(req.body.isbn, req.body.publisher)
+        }
+        if (req.body.description != undefined) {
+            await updateDescription(req.body.isbn, req.body.description)
+        }
+        if (req.body.category != undefined) {
+            await updateCategory(req.body.isbn, req.body.category)
+        }
+        if (req.body.maturaty_rating != undefined) {
+            await updateMaturityRating(req.body.isbn, req.body.maturaty_rating)
+        }
+        if (req.body.image != undefined) {
+            await updateImage(req.body.isbn, req.body.image)
+        }
         res.status(200).json({ updated_book: req.body.isbn })
     } catch (e) {
         next(e)
@@ -242,7 +297,7 @@ const patchBook = async (req, res, next) => {
  */
 const getAllBooks = async (req, res, next) => {
     try {
-        const books = await Book.find({})
+        const books = await Book.find({ active: true })
         const output = books.map((book) => {
             return {
                 isbn: book.isbn,
@@ -252,6 +307,18 @@ const getAllBooks = async (req, res, next) => {
             }
         })
         return res.status(200).json({ books: output })
+    } catch (e) {
+        return next(e)
+    }
+}
+
+const deleteBook = async (req, res, next) => {
+    try {
+        const book = await findBook(req.params['isbn'])
+        book.active = false
+        await book.validate()
+        await book.save()
+        res.status(200).json({ deleted_book: book.isbn })
     } catch (e) {
         return next(e)
     }
@@ -279,4 +346,5 @@ module.exports = {
     getAllBooks,
     getCategories,
     getBook,
+    deleteBook,
 }

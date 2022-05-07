@@ -310,7 +310,7 @@ const Slideover = () => {
 
 const Table = () => {
     const rowStyles = classNames(
-        'px-6 py-3 whitespace-nowrap text-sm text-gray-800'
+        'px-6 py-3 whitespace-nowrap text-sm text-gray-800 text-center'
     )
 
     const columnActionsStyles = classNames('flex space-x-0.5 justify-end px-4')
@@ -326,7 +326,7 @@ const Table = () => {
     const thStyles = classNames(
         'px-6 py-3 border-b border-gray-200 bg-gray-50',
         'text-left text-xs font-medium text-gray-500',
-        'uppercase tracking-wider'
+        'uppercase tracking-wider text-center'
     )
 
     /**
@@ -414,11 +414,45 @@ const Table = () => {
                 )
 
                 if (Array.isArray(field)) {
-                    const fields = field.map((o) => {
-                        return JSON.stringify(o)
+                    const data = field
+                    const table = document.createElement('table')
+                    const thead = document.createElement('thead')
+                    const tbody = document.createElement('tbody')
+
+                    const tr = document.createElement('tr')
+                    tr.className = trStyles
+                    Object.keys(data[0])
+                        .filter(([key]) => {
+                            const dontShow = '_id'
+                            return !dontShow.includes(key)
+                        })
+                        .map((key) => {
+                            const th = document.createElement('th')
+                            th.className = thStyles
+                            th.innerHTML = key
+                            tr.append(th)
+                            thead.append(tr)
+                        })
+
+                    data.forEach((row) => {
+                        const tr = document.createElement('tr')
+                        Object.entries(row)
+                            .filter(([key]) => {
+                                const dontShow = '_id'
+                                return !dontShow.includes(key)
+                            })
+                            .map((value) => {
+                                const td = document.createElement('td')
+                                td.className = rowStyles
+                                td.innerHTML = value[1]
+                                tr.append(td)
+                            })
+                        tbody.append(tr)
                     })
 
-                    td.append(...fields)
+                    table.append(tbody)
+                    table.append(thead)
+                    td.append(table)
                 } else {
                     td.innerHTML = field
                 }
@@ -897,31 +931,26 @@ const Employees = () => {
 const Books = () => {
     const init = () => {
         Module().init('Books', 'New Book')
-
         Slideover().setCreateBtnAction('New Book', onCreateBook)
-
         onModuleLoad()
-    }
-
-    const onCreateBook = () => {
-        const fields = [
-            { label: 'ISBN', id: 'isbn', required: true },
-            { label: 'Stock New', id: 'stock_new', required: true },
-            { label: 'Stock Second Hand', id: 'stock_used', required: true },
-            { label: 'Price New', id: 'price_new', required: true },
-            { label: 'Price Second Hand', id: 'price_used', required: true },
-        ]
-
-        Slideover().renderForm('New Book', fields, false, onFormSubmission)
-        Slideover().toggleSlideover()
     }
 
     const onModuleLoad = () => {
         const actions = [
             {
                 label: 'View',
-                color: 'text-indigo-600',
+                color: 'text-indigo-400',
                 cb: (event) => onView(event),
+            },
+            {
+                label: 'Edit',
+                color: 'text-yellow-500',
+                cb: (event) => onEdit(event),
+            },
+            {
+                label: 'Remove',
+                color: 'text-red-400',
+                cb: (event) => onRemove(event),
             },
         ]
 
@@ -939,20 +968,93 @@ const Books = () => {
             })
     }
 
-    const onFormSubmission = async () => {
+    const onCreateBook = () => {
+        const fields = [
+            { label: 'ISBN', id: 'isbn', required: true },
+            { label: 'Stock New', id: 'stock_new', required: true },
+            { label: 'Stock Second Hand', id: 'stock_used', required: true },
+            { label: 'Price New', id: 'price_new', required: true },
+            { label: 'Price Second Hand', id: 'price_used', required: true },
+        ]
+
+        Slideover().renderForm('New Book', fields, false, onFormSubCreate)
+        Slideover().toggleSlideover()
+    }
+
+    const onFormSubCreate = async () => {
         await fetch(API_URL + '/books', {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                isbn: document.getElementById('isbn').value,
-                stock_new: document.getElementById('stock_new').value,
-                stock_used: document.getElementById('stock_used').value,
-                price_new: document.getElementById('price_new').value,
-                price_used: document.getElementById('price_used').value,
-            }),
+            body: Slideover().getJsonForm(),
+        })
+            .then((raw) => raw.json())
+            .then((res) => {
+                if (res['error']) {
+                    Slideover().setError(res['error'])
+                    return
+                }
+
+                Slideover().toggleSlideover()
+            })
+            .then(() => onModuleLoad())
+    }
+
+    const onEdit = async (event) => {
+        const id = event.target.id
+
+        await fetch(API_URL + '/book/' + id)
+            .then((res) => res.json())
+            .then((raw) => raw['book'])
+            .then((book) => {
+                const entries = Object.entries(book)
+                    .filter(([key]) => {
+                        const dontShow = [
+                            '_id',
+                            '__v',
+                            'created_at',
+                            'updated_at',
+                            'update_at',
+                        ]
+
+                        return !dontShow.includes(key)
+                    })
+                    .map(([key, value]) => {
+                        if (
+                            key == 'isbn' ||
+                            key == 'title' ||
+                            key == 'authors' ||
+                            key == 'published_date' ||
+                            key == 'language' ||
+                            key == 'pages'
+                        ) {
+                            return {
+                                label: key,
+                                id: key,
+                                value: value,
+                                disabled: true,
+                            }
+                        }
+                        return { label: key, id: key, value: value }
+                    })
+
+                Slideover().toggleSlideover()
+                Slideover().renderForm('Book', entries, false, () =>
+                    onFormSubEdit()
+                )
+            })
+    }
+
+    const onFormSubEdit = async () => {
+        await fetch(API_URL + '/books', {
+            method: 'PATCH',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: Slideover().getJsonForm(),
         })
             .then((raw) => raw.json())
             .then((res) => {
@@ -981,17 +1083,51 @@ const Books = () => {
                             'created_at',
                             'updated_at',
                             'update_at',
+                            'image',
                         ]
 
                         return !dontShow.includes(key)
                     })
                     .map(([key, value]) => {
-                        return { label: key, value: value, disabled: true }
+                        return {
+                            label: key,
+                            id: key,
+                            value: value,
+                            disabled: true,
+                        }
                     })
 
                 Slideover().toggleSlideover()
-                Slideover().renderForm('Customer', entries, true, null)
+                Slideover().renderForm('Book', entries, true, null)
+                renderImagesInsideForm(book)
             })
+    }
+
+    const renderImagesInsideForm = (book) => {
+        const dummyContainer =
+            document.getElementById('form-container').firstElementChild
+
+        const img = document.createElement('img')
+
+        if (book.image == '') {
+            img.src =
+                'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg'
+        } else {
+            img.src = book.image
+        }
+
+        img.setAttribute('class', 'mb-4')
+        img.width = '130'
+        img.height = '90'
+        dummyContainer.prepend(img)
+    }
+
+    const onRemove = async (event) => {
+        const id = event.target.id
+
+        await fetch(API_URL + '/book/' + id, {
+            method: 'DELETE',
+        }).then(() => onModuleLoad())
     }
 
     return {
@@ -1022,9 +1158,11 @@ const Purchases = () => {
             .then(() => {
                 handlePurchaseClickEvents()
                 document.getElementById('add-isbn').click()
-                document.getElementById('form-submit-btn').addEventListener('click', () => {
-                    onFormSubmission()
-                })
+                document
+                    .getElementById('form-submit-btn')
+                    .addEventListener('click', () => {
+                        onFormSubmission()
+                    })
             })
     }
 
