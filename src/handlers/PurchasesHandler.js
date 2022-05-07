@@ -242,7 +242,7 @@ const getAllPurchases = async (req, res, next) => {
         )
         return res.status(200).json({ purchases: output })
     } catch (e) {
-        next(e)
+        return next(e)
     }
 }
 
