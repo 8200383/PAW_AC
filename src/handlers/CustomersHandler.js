@@ -32,7 +32,7 @@ const createCustomer = async (req, res, next) => {
  */
 const getAllCustomers = async (req, res, next) => {
     try {
-        const customers = await Customer.find({})
+        const customers = await Customer.find({ active: true })
 
         const output = customers.map((customer) => {
             return {
@@ -83,7 +83,7 @@ const patchCustomer = async (req, res, next) => {
         const customer = await Customer.updateOne(
             { reader_card_num: req.params.reader_card_num },
             { $set: req.body },
-            { runValidators: true },
+            { runValidators: true }
         )
 
         return res.status(200).json({ customer })
@@ -102,9 +102,12 @@ const patchCustomer = async (req, res, next) => {
  */
 const deleteCustomer = async (req, res, next) => {
     try {
-        const customer = await Customer.deleteOne(
-            { reader_card_num: req.params.reader_card_num },
-        )
+        const customer = await Customer.findOne({
+            reader_card_num: req.params.reader_card_num,
+        })
+        customer.active = false
+        await customer.validate()
+        await customer.save()
 
         return res.status(200).json({ customer })
     } catch (e) {

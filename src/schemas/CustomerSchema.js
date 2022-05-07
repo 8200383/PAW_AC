@@ -22,6 +22,7 @@ const customerSchema = new Schema({
     accumulated_balance: { type: Number, min: 0 },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
+    active: { type: Boolean, default: true}
 })
 
 module.exports = mongoose.model('Customer', customerSchema)
